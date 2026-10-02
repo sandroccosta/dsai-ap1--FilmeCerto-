@@ -46,8 +46,6 @@ pnpm dev                     # http://localhost:3000
 | `pnpm test:e2e` | Testes ponta a ponta (Playwright; requer `pnpm build` antes) |
 | `pnpm check:secrets` | Garante que segredos não vazaram para o bundle do navegador |
 
-> **Windows em disco FAT32/exFAT:** o `.npmrc` usa `node-linker=hoisted`, porque esses sistemas de arquivos não suportam os symlinks que o pnpm usa por padrão.
-
 ## Estrutura
 
 ```
