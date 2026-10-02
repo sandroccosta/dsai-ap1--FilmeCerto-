@@ -6,7 +6,11 @@ Projeto da AP1 da disciplina **Desenvolvimento de Software Apoiado por IA** (UFP
 
 ## URL pública
 
-> _A ser publicada na Vercel. Este link será atualizado assim que o primeiro deploy estiver no ar._
+**<https://dsai-ap1-filme-certo.vercel.app/>**
+
+Repositório: [github.com/sandroccosta/dsai-ap1--FilmeCerto-](https://github.com/sandroccosta/dsai-ap1--FilmeCerto-)
+
+[![CI](https://github.com/sandroccosta/dsai-ap1--FilmeCerto-/actions/workflows/ci.yml/badge.svg)](https://github.com/sandroccosta/dsai-ap1--FilmeCerto-/actions/workflows/ci.yml)
 
 ## Dupla
 
