@@ -11,8 +11,27 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "jsdom",
-    include: ["tests/unit/**/*.test.{ts,tsx}"],
-    setupFiles: ["./tests/support/setup.ts"],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit",
+          environment: "jsdom",
+          include: ["tests/unit/**/*.test.{ts,tsx}"],
+          setupFiles: ["./tests/support/setup.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "integration",
+          environment: "node",
+          include: ["tests/integration/**/*.test.ts"],
+          // Contra o Supabase local: rede e banco reais, então sem paralelismo entre arquivos.
+          fileParallelism: false,
+          testTimeout: 20_000,
+        },
+      },
+    ],
   },
 });

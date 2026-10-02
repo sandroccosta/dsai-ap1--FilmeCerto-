@@ -19,16 +19,16 @@ Repositório: [github.com/sandroccosta/dsai-ap1--FilmeCerto-](https://github.com
 
 ## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| Framework | Next.js 16 (App Router), React 19, TypeScript (strict) |
-| Estilo | Tailwind CSS 4 + shadcn/ui |
-| Banco e autenticação | Supabase (Postgres + Supabase Auth, com RLS) |
-| Catálogo de filmes | API do TMDB (v3, autenticação via Bearer token) |
-| Validação | zod |
-| Testes | Vitest + Testing Library (unidade/componentes), Playwright (E2E) |
-| CI | GitHub Actions |
-| Deploy | Vercel |
+| Camada               | Tecnologia                                                       |
+| -------------------- | ---------------------------------------------------------------- |
+| Framework            | Next.js 16 (App Router), React 19, TypeScript (strict)           |
+| Estilo               | Tailwind CSS 4 + shadcn/ui                                       |
+| Banco e autenticação | Supabase (Postgres + Supabase Auth, com RLS)                     |
+| Catálogo de filmes   | API do TMDB (v3, autenticação via Bearer token)                  |
+| Validação            | zod                                                              |
+| Testes               | Vitest + Testing Library (unidade/componentes), Playwright (E2E) |
+| CI                   | GitHub Actions                                                   |
+| Deploy               | Vercel                                                           |
 
 ## Como rodar
 
@@ -40,15 +40,38 @@ cp .env.example .env.local   # preencha com suas chaves do Supabase e do TMDB
 pnpm dev                     # http://localhost:3000
 ```
 
-| Comando | O que faz |
-|---|---|
-| `pnpm dev` | Servidor de desenvolvimento |
-| `pnpm build` / `pnpm start` | Build e servidor de produção |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | Checagem de tipos (`tsc --noEmit`) |
-| `pnpm test` | Testes unitários e de componentes (Vitest) |
-| `pnpm test:e2e` | Testes ponta a ponta (Playwright; requer `pnpm build` antes) |
-| `pnpm check:secrets` | Garante que segredos não vazaram para o bundle do navegador |
+| Comando                     | O que faz                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `pnpm dev`                  | Servidor de desenvolvimento                                                    |
+| `pnpm build` / `pnpm start` | Build e servidor de produção                                                   |
+| `pnpm lint`                 | ESLint                                                                         |
+| `pnpm typecheck`            | Checagem de tipos (`tsc --noEmit`)                                             |
+| `pnpm test`                 | Testes unitários e de componentes (Vitest)                                     |
+| `pnpm test:integration`     | Testes contra o Supabase local: trigger e RLS (requer `pnpm db:start`)         |
+| `pnpm test:e2e`             | Testes ponta a ponta (Playwright; faz o build apontando para o Supabase local) |
+| `pnpm check:secrets`        | Garante que segredos não vazaram para o bundle do navegador                    |
+| `pnpm db:start`             | Sobe o Supabase local em Docker e aplica as migrations                         |
+| `pnpm db:reset`             | Recria o banco local do zero, reaplicando as migrations                        |
+| `pnpm db:types`             | Gera `src/lib/supabase/database.types.ts` a partir do banco local              |
+
+### Banco local para testes
+
+Os testes de integração e E2E rodam contra um Supabase local, nunca contra o banco de produção. É preciso ter o Docker Desktop aberto.
+
+```bash
+pnpm db:start           # primeira vez baixa as imagens; depois leva segundos
+pnpm test:integration
+pnpm test:e2e
+```
+
+### Banco de produção
+
+As migrations de `supabase/migrations/` são aplicadas no projeto Supabase da Vercel assim:
+
+1. No painel do Supabase, em **Authentication → Sign In / Providers → Email**, desligue **Confirm email**.
+2. `pnpm exec supabase login`
+3. `pnpm exec supabase link --project-ref <ref-do-projeto>` (o ref está na URL do painel)
+4. `pnpm exec supabase db push`
 
 ## Estrutura
 
@@ -65,8 +88,8 @@ tests/            unit/ (Vitest) e e2e/ (Playwright)
 
 ## Ferramentas e modelos de IA
 
-| Ferramenta | Modelo | Uso |
-|---|---|---|
+| Ferramenta                     | Modelo                              | Uso                                                      |
+| ------------------------------ | ----------------------------------- | -------------------------------------------------------- |
 | Claude Code (extensão VS Code) | Claude Opus 5.5 (`claude-opus-5-5`) | Análise do projeto antigo, design, specs e implementação |
 
 Os registros completos das sessões estão em [`prompts/sessoes/`](prompts/sessoes/).

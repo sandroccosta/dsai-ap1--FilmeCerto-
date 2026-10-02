@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = Number(process.env.PORT ?? 3000);
+import { SUPABASE_LOCAL } from "./tests/support/supabase-local";
+
+// Porta própria para não reaproveitar um `pnpm dev` apontando para outro banco.
+const PORT = Number(process.env.E2E_PORT ?? 3100);
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -15,9 +18,18 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `pnpm start --port ${PORT}`,
+    // No CI o build já foi feito com as variáveis do Supabase local. Localmente o
+    // build é refeito, porque as variáveis NEXT_PUBLIC_* são embutidas no build.
+    command: process.env.CI
+      ? `pnpm start --port ${PORT}`
+      : `pnpm build && pnpm start --port ${PORT}`,
     url: `${baseURL}/api/health`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    reuseExistingServer: false,
+    timeout: 300_000,
+    env: {
+      NEXT_PUBLIC_SUPABASE_URL: SUPABASE_LOCAL.url,
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: SUPABASE_LOCAL.publishableKey,
+      TMDB_READ_TOKEN: process.env.TMDB_READ_TOKEN ?? "token-e2e",
+    },
   },
 });

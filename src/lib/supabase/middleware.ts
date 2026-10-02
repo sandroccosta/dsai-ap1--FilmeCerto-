@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getPublicEnv } from "@/lib/env";
+import type { Database } from "@/lib/supabase/database.types";
 
 /**
  * Renova a sessão do Supabase a cada requisição e devolve a resposta com os
@@ -12,7 +13,7 @@ export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   const env = getPublicEnv();
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {

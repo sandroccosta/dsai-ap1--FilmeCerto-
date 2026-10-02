@@ -3,6 +3,15 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+// Como o `next build`, lê os arquivos .env locais sem sobrescrever variáveis já definidas.
+for (const file of [".env.local", ".env"]) {
+  try {
+    process.loadEnvFile(file);
+  } catch {
+    // Arquivo ausente (ex.: no CI, onde as variáveis vêm do ambiente).
+  }
+}
+
 const SECRET_VARIABLES = ["TMDB_READ_TOKEN"];
 const STATIC_DIR = ".next/static";
 
