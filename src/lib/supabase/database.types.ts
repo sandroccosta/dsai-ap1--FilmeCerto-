@@ -24,6 +24,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      preferencias: {
+        Row: {
+          atualizado_em: string;
+          criado_em: string;
+          duracao: Database["public"]["Enums"]["duracao_preferida"];
+          frequencia: Database["public"]["Enums"]["frequencia_assistir"];
+          generos: number[];
+          usuario_id: string;
+        };
+        Insert: {
+          atualizado_em?: string;
+          criado_em?: string;
+          duracao: Database["public"]["Enums"]["duracao_preferida"];
+          frequencia: Database["public"]["Enums"]["frequencia_assistir"];
+          generos: number[];
+          usuario_id: string;
+        };
+        Update: {
+          atualizado_em?: string;
+          criado_em?: string;
+          duracao?: Database["public"]["Enums"]["duracao_preferida"];
+          frequencia?: Database["public"]["Enums"]["frequencia_assistir"];
+          generos?: number[];
+          usuario_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -32,7 +59,8 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      duracao_preferida: "curta" | "media" | "longa" | "indiferente";
+      frequencia_assistir: "raramente" | "mensal" | "semanal" | "diaria";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -143,6 +171,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      duracao_preferida: ["curta", "media", "longa", "indiferente"],
+      frequencia_assistir: ["raramente", "mensal", "semanal", "diaria"],
+    },
   },
 } as const;

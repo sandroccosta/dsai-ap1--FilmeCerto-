@@ -1,39 +1,19 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-import { emailAleatorio, SENHA_TESTE } from "../support/supabase-local";
+import { emailAleatorio } from "../support/supabase-local";
+import { cadastrar, concluirOnboarding, entrar, sair } from "./helpers";
 
-async function cadastrar(page: Page, nome: string, email: string) {
-  await page.goto("/cadastro");
-  await page.getByLabel("Nome").fill(nome);
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Senha", { exact: true }).fill(SENHA_TESTE);
-  await page.getByLabel("Confirme a senha").fill(SENHA_TESTE);
-  await page.getByRole("main").getByRole("button", { name: "Criar conta" }).click();
-}
-
-async function entrar(page: Page, email: string, senha = SENHA_TESTE) {
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Senha").fill(senha);
-  await page.getByRole("main").getByRole("button", { name: "Entrar" }).click();
-}
-
-async function sair(page: Page) {
-  await page.getByRole("banner").getByRole("button", { name: "Sair" }).click();
-  await expect(page).toHaveURL("/");
-}
-
-test("cadastro com dados válidos leva ao dashboard com o nome", async ({ page }) => {
+test("cadastro com dados válidos leva ao onboarding com a sessão aberta", async ({ page }) => {
   await cadastrar(page, "Ana Souza", emailAleatorio("e2e"));
 
-  await expect(page).toHaveURL("/dashboard");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Olá, Ana Souza");
+  await expect(page).toHaveURL("/onboarding");
   await expect(page.getByRole("banner").getByText("Ana Souza")).toBeVisible();
 });
 
 test("cadastro com email já usado mostra o erro", async ({ page }) => {
   const email = emailAleatorio("e2e");
   await cadastrar(page, "Ana Souza", email);
-  await expect(page).toHaveURL("/dashboard");
+  await expect(page).toHaveURL("/onboarding");
   await sair(page);
 
   await cadastrar(page, "Outra Pessoa", email);
@@ -45,7 +25,7 @@ test("cadastro com email já usado mostra o erro", async ({ page }) => {
 
 test("sair encerra a sessão e o dashboard volta a exigir login", async ({ page }) => {
   await cadastrar(page, "Bia Lima", emailAleatorio("e2e"));
-  await expect(page).toHaveURL("/dashboard");
+  await expect(page).toHaveURL("/onboarding");
 
   await sair(page);
   await page.goto("/dashboard");
@@ -55,6 +35,7 @@ test("sair encerra a sessão e o dashboard volta a exigir login", async ({ page 
 test("login com senha errada mostra o erro", async ({ page }) => {
   const email = emailAleatorio("e2e");
   await cadastrar(page, "Caio Reis", email);
+  await expect(page).toHaveURL("/onboarding");
   await sair(page);
 
   await page.goto("/login");
@@ -66,6 +47,7 @@ test("login com senha errada mostra o erro", async ({ page }) => {
 test("login a partir de ?next volta para a página pedida", async ({ page }) => {
   const email = emailAleatorio("e2e");
   await cadastrar(page, "Duda Alves", email);
+  await concluirOnboarding(page);
   await sair(page);
 
   await page.goto("/dashboard");
@@ -77,7 +59,7 @@ test("login a partir de ?next volta para a página pedida", async ({ page }) => 
 
 test("com sessão, /login, /cadastro e / levam ao dashboard", async ({ page }) => {
   await cadastrar(page, "Edu Melo", emailAleatorio("e2e"));
-  await expect(page).toHaveURL("/dashboard");
+  await concluirOnboarding(page);
 
   for (const rota of ["/login", "/cadastro", "/"]) {
     await page.goto(rota);

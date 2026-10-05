@@ -73,7 +73,7 @@ export async function cadastrar(
     return { mensagem: traduzirErroAuth(error.code), valores };
   }
 
-  redirect("/dashboard");
+  redirect("/onboarding");
 }
 
 export async function sair(): Promise<void> {

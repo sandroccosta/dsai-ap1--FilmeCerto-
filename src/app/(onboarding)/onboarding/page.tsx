@@ -1,0 +1,25 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+
+import { exigirUsuario } from "@/features/auth/sessao";
+import { OnboardingWizard } from "@/features/preferencias/components/onboarding-wizard";
+import { obterPreferencias } from "@/features/preferencias/consultas";
+
+export const metadata: Metadata = { title: "Suas preferências" };
+
+export default async function OnboardingPage() {
+  const usuario = await exigirUsuario();
+  if (await obterPreferencias()) redirect("/dashboard");
+
+  return (
+    <section className="flex flex-1 items-start justify-center px-4 py-12 sm:py-16">
+      <div className="border-border/60 bg-card w-full max-w-2xl rounded-xl border p-6 shadow-sm sm:p-8">
+        <h1 className="mb-1 text-2xl font-bold tracking-tight">Conte do que você gosta</h1>
+        <p className="text-muted-foreground mb-6 text-sm">
+          {usuario.nome}, são só 3 perguntas para montar recomendações do seu jeito.
+        </p>
+        <OnboardingWizard />
+      </div>
+    </section>
+  );
+}

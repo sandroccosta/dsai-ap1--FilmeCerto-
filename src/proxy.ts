@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { DESTINO_PADRAO } from "@/features/auth/redirecionamento";
 import { updateSession } from "@/lib/supabase/middleware";
 
-/** Rotas da área logada (grupo `(app)`). */
-const ROTAS_PROTEGIDAS = ["/dashboard"];
+/** Rotas que exigem sessão: a área logada (grupo `(app)`) e o onboarding. */
+const ROTAS_PROTEGIDAS = ["/dashboard", "/onboarding"];
 /** Rotas que só fazem sentido sem sessão. */
 const ROTAS_DE_VISITANTE = ["/", "/login", "/cadastro"];
 
