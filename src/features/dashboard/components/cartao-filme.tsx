@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { Recomendacao } from "@/features/recomendacao/tipos";
 import { urlImagem } from "@/lib/tmdb/imagens";
+import type { FilmeResumo } from "@/lib/tmdb/tipos";
 
-export function CartaoFilme({ filme }: { filme: Recomendacao }) {
+/** Card de filme; o motivo só aparece quando o filme veio do motor de recomendação. */
+export function CartaoFilme({ filme }: { filme: FilmeResumo & { motivo?: string } }) {
   const poster = urlImagem(filme.posterPath, "w342");
   const nome = filme.ano ? `${filme.titulo} (${filme.ano})` : filme.titulo;
   const detalhes = [filme.ano, `★ ${filme.nota.toFixed(1)}`].filter(Boolean).join(" · ");
@@ -36,7 +37,11 @@ export function CartaoFilme({ filme }: { filme: Recomendacao }) {
       <div className="flex flex-col gap-0.5">
         <p className="truncate text-sm font-medium">{filme.titulo}</p>
         <p className="text-muted-foreground text-xs">{detalhes}</p>
-        <p className="text-muted-foreground line-clamp-2 text-xs">{filme.motivo}</p>
+        {filme.motivo && (
+          <p data-testid="motivo" className="text-muted-foreground line-clamp-2 text-xs">
+            {filme.motivo}
+          </p>
+        )}
       </div>
     </Link>
   );

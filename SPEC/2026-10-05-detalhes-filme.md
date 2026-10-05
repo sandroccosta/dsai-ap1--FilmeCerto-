@@ -22,7 +22,7 @@ No MovieMatch antigo, os detalhes eram buscados na OMDb **pelo título**, o que 
 | Rota | `src/app/(app)/filme/[id]/page.tsx`, dentro da área logada (exige sessão e onboarding, como o dashboard) |
 | Dados | `obterFilme(id)` do cliente do TMDB |
 | ID inválido ou inexistente | `notFound()` (página 404 do app) |
-| Carregamento | `<Suspense>` dentro da página com esqueleto (não `loading.tsx`, pelo mesmo motivo registrado na spec `dashboard`) |
+| Carregamento | A página espera `obterFilme` antes de renderizar, sem `<Suspense>`: `notFound()` dentro de um trecho já transmitido não devolve 404 de verdade, e o `generateMetadata` já espera a mesma chamada. Sem `loading.tsx`, pelo motivo registrado na spec `dashboard` (o login com `?next=/filme/...` é um redirect de Server Action) |
 | Falha do TMDB | `error.tsx` da rota com "Tentar de novo" (`retry`) |
 | Trailer | Miniatura do YouTube; o `<iframe>` de `youtube-nocookie.com` só é criado depois do clique |
 | Título da aba | `generateMetadata` com "{título} ({ano})" |
@@ -75,6 +75,7 @@ No MovieMatch antigo, os detalhes eram buscados na OMDb **pelo título**, o que 
 
 - `CartaoFilme` (spec `dashboard`) passa a aceitar `FilmeResumo` com `motivo` opcional; sem motivo, a linha não é renderizada.
 - `next.config.ts` libera imagens de `i.ytimg.com` (miniatura do trailer).
+- `src/app/not-found.tsx` passa a mostrar o 404 em pt-BR ("Página não encontrada"), no lugar da página padrão do Next em inglês.
 
 ### TMDB falso
 

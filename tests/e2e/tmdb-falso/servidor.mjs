@@ -72,6 +72,48 @@ const servidor = createServer((req, res) => {
     return responder(res, 200, pagina(filmes, numero));
   }
 
+  const detalhes = url.pathname.match(/^\/3\/movie\/(\d+)$/);
+  if (detalhes) {
+    const id = Number(detalhes[1]);
+    if (id >= 999000000) return responder(res, 404, { status_code: 34 });
+    const base = filme(id, `Filme ${id}`, 18, 0);
+    delete base.genre_ids;
+    return responder(res, 200, {
+      ...base,
+      overview: `Sinopse do Filme ${id}.`,
+      genres: [
+        { id: 18, name: "Drama" },
+        { id: 28, name: "Ação" },
+      ],
+      runtime: 125,
+      tagline: "Um slogan de teste.",
+      videos: {
+        results: [{ key: "trailer-falso", site: "YouTube", type: "Trailer", official: true }],
+      },
+      credits: {
+        cast: [
+          { name: "Atriz Um", character: "Heroína", profile_path: null },
+          { name: "Ator Dois", character: "Vilão", profile_path: null },
+          { name: "Atriz Três", character: "Mentora", profile_path: null },
+        ],
+        crew: [{ name: "Diretora Teste", job: "Director" }],
+      },
+      "watch/providers": {
+        results: {
+          BR: {
+            link: `https://www.themoviedb.org/movie/${id}/watch?locale=BR`,
+            flatrate: [{ provider_id: 8, provider_name: "Netflix", logo_path: null }],
+            rent: [{ provider_id: 2, provider_name: "Apple TV", logo_path: null }],
+          },
+        },
+      },
+      recommendations: pagina(
+        Array.from({ length: 5 }, (_, i) => filme(id * 10 + i, `Parecido ${id}-${i + 1}`, 18, i)),
+        1,
+      ),
+    });
+  }
+
   const recomendacoes = url.pathname.match(/^\/3\/movie\/(\d+)\/recommendations$/);
   if (recomendacoes) {
     const origem = Number(recomendacoes[1]);
