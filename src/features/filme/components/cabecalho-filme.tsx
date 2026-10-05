@@ -60,8 +60,8 @@ export function CabecalhoFilme({ filme, acoes }: { filme: FilmeDetalhes; acoes?:
             </ul>
           )}
           {filme.slogan && <p className="text-muted-foreground italic">{filme.slogan}</p>}
-          {/* Reações; listas e "não me interessa" entram aqui nas próximas specs. */}
-          <div data-testid="acoes-filme" className="flex flex-wrap gap-2 empty:hidden">
+          {/* Reações e botões de lista. */}
+          <div data-testid="acoes-filme" className="flex flex-col gap-3 empty:hidden">
             {acoes}
           </div>
         </div>

@@ -4,11 +4,18 @@ import Link from "next/link";
 import { urlImagem } from "@/lib/tmdb/imagens";
 import type { FilmeResumo } from "@/lib/tmdb/tipos";
 
-/** Card de filme; o motivo só aparece quando o filme veio do motor de recomendação. */
-export function CartaoFilme({ filme }: { filme: FilmeResumo & { motivo?: string } }) {
+export type FilmeCartao = Pick<FilmeResumo, "id" | "titulo" | "posterPath" | "ano"> & {
+  nota?: number;
+  /** Só quando o filme veio do motor de recomendação. */
+  motivo?: string;
+};
+
+export function CartaoFilme({ filme }: { filme: FilmeCartao }) {
   const poster = urlImagem(filme.posterPath, "w342");
   const nome = filme.ano ? `${filme.titulo} (${filme.ano})` : filme.titulo;
-  const detalhes = [filme.ano, `★ ${filme.nota.toFixed(1)}`].filter(Boolean).join(" · ");
+  const detalhes = [filme.ano, filme.nota !== undefined && `★ ${filme.nota.toFixed(1)}`]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Link

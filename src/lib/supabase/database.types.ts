@@ -3,6 +3,42 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      lista_itens: {
+        Row: {
+          adicionado_em: string;
+          ano: number | null;
+          atualizado_em: string;
+          generos: number[];
+          poster_path: string | null;
+          status: Database["public"]["Enums"]["status_lista"];
+          titulo: string;
+          tmdb_id: number;
+          usuario_id: string;
+        };
+        Insert: {
+          adicionado_em?: string;
+          ano?: number | null;
+          atualizado_em?: string;
+          generos?: number[];
+          poster_path?: string | null;
+          status: Database["public"]["Enums"]["status_lista"];
+          titulo: string;
+          tmdb_id: number;
+          usuario_id: string;
+        };
+        Update: {
+          adicionado_em?: string;
+          ano?: number | null;
+          atualizado_em?: string;
+          generos?: number[];
+          poster_path?: string | null;
+          status?: Database["public"]["Enums"]["status_lista"];
+          titulo?: string;
+          tmdb_id?: number;
+          usuario_id?: string;
+        };
+        Relationships: [];
+      };
       perfis: {
         Row: {
           atualizado_em: string;
@@ -92,6 +128,7 @@ export type Database = {
       duracao_preferida: "curta" | "media" | "longa" | "indiferente";
       frequencia_assistir: "raramente" | "mensal" | "semanal" | "diaria";
       reacao_filme: "nao-gostei" | "gostei" | "amei";
+      status_lista: "quero_assistir" | "assistido";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -206,6 +243,7 @@ export const Constants = {
       duracao_preferida: ["curta", "media", "longa", "indiferente"],
       frequencia_assistir: ["raramente", "mensal", "semanal", "diaria"],
       reacao_filme: ["nao-gostei", "gostei", "amei"],
+      status_lista: ["quero_assistir", "assistido"],
     },
   },
 } as const;

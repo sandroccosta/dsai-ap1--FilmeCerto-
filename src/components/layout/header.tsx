@@ -22,6 +22,9 @@ export async function Header() {
           </Link>
           {usuario ? (
             <>
+              <Link href="/listas" className="hover:text-foreground transition-colors">
+                Minhas listas
+              </Link>
               <span className="text-foreground hidden max-w-40 truncate sm:inline">
                 {usuario.nome}
               </span>

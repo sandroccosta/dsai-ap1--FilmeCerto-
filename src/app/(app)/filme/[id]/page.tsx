@@ -10,6 +10,8 @@ import { CabecalhoFilme } from "@/features/filme/components/cabecalho-filme";
 import { Elenco } from "@/features/filme/components/elenco";
 import { OndeAssistir } from "@/features/filme/components/onde-assistir";
 import { Trailer } from "@/features/filme/components/trailer";
+import { BotoesLista } from "@/features/listas/components/botoes-lista";
+import { obterStatusLista } from "@/features/listas/consultas";
 import { BotoesReacao } from "@/features/reacoes/components/botoes-reacao";
 import { obterReacao } from "@/features/reacoes/consultas";
 import { obterFilme } from "@/lib/tmdb/filmes";
@@ -45,7 +47,10 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 export default async function FilmePage({ params }: PageProps<"/filme/[id]">) {
   const filme = await buscarFilme((await params).id);
   if (!filme) notFound();
-  const reacao = await obterReacao(filme.id);
+  const [reacao, statusLista] = await Promise.all([
+    obterReacao(filme.id),
+    obterStatusLista(filme.id),
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
@@ -58,7 +63,12 @@ export default async function FilmePage({ params }: PageProps<"/filme/[id]">) {
 
       <CabecalhoFilme
         filme={filme}
-        acoes={<BotoesReacao key={reacao ?? "nenhuma"} tmdbId={filme.id} atual={reacao} />}
+        acoes={
+          <>
+            <BotoesReacao key={`r-${reacao}`} tmdbId={filme.id} atual={reacao} />
+            <BotoesLista key={`l-${statusLista}`} tmdbId={filme.id} atual={statusLista} />
+          </>
+        }
       />
 
       <Secao titulo="Sinopse">
