@@ -166,7 +166,7 @@ export function criarApiFilmes(cliente: ClienteTmdb) {
   };
 }
 
-type ApiFilmes = ReturnType<typeof criarApiFilmes>;
+export type ApiFilmes = ReturnType<typeof criarApiFilmes>;
 
 let padrao: ApiFilmes | undefined;
 const api = () => (padrao ??= criarApiFilmes(clienteTmdbPadrao()));
