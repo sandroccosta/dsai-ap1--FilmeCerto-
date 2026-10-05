@@ -1,27 +1,49 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { exigirUsuario } from "@/features/auth/sessao";
+import { EsqueletoSecoes } from "@/features/dashboard/components/esqueleto-secoes";
+import { SecoesRecomendadas } from "@/features/dashboard/components/secoes-recomendadas";
+import { lerRodada } from "@/features/dashboard/rodada";
 import { obterPreferencias } from "@/features/preferencias/consultas";
 import { resumirPreferencias } from "@/features/preferencias/resumo";
 
 export const metadata: Metadata = { title: "Início" };
 
-// Página provisória: a spec `dashboard` troca este conteúdo pelas recomendações.
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   const usuario = await exigirUsuario();
   const preferencias = await obterPreferencias();
+  if (!preferencias) redirect("/onboarding");
+
+  const rodada = lerRodada((await searchParams).rodada);
+  const urlAtual = rodada ? `/dashboard?rodada=${rodada}` : "/dashboard";
+  const proximaRodada = `/dashboard?rodada=${rodada + 1}`;
 
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-3 px-4 py-16">
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Olá, {usuario.nome}</h1>
-      {preferencias && (
-        <p className="text-foreground" data-testid="resumo-preferencias">
-          {resumirPreferencias(preferencias)}
-        </p>
-      )}
-      <p className="text-muted-foreground max-w-xl">
-        Em breve, aqui vão aparecer as recomendações de filmes feitas para o seu gosto.
-      </p>
-    </section>
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Olá, {usuario.nome}</h1>
+          <p className="text-muted-foreground" data-testid="resumo-preferencias">
+            {resumirPreferencias(preferencias)}
+          </p>
+        </div>
+        <Link href={proximaRodada} className={buttonVariants({ variant: "outline", size: "lg" })}>
+          Gerar outras recomendações
+        </Link>
+      </header>
+
+      {/* A chave por rodada mostra o esqueleto de novo a cada "Gerar outras recomendações". */}
+      <Suspense key={rodada} fallback={<EsqueletoSecoes />}>
+        <SecoesRecomendadas
+          entrada={{ preferencias, usuarioId: usuario.id, data: new Date(), rodada }}
+          urlAtual={urlAtual}
+          proximaRodada={proximaRodada}
+        />
+      </Suspense>
+    </div>
   );
 }

@@ -13,6 +13,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
       TMDB_READ_TOKEN: token-ci
+      # TMDB falso dos testes E2E (tests/e2e/tmdb-falso), subido pelo Playwright.
+      TMDB_API_URL: http://127.0.0.1:4010/3
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

@@ -30,7 +30,7 @@ O dashboard do MovieMatch antigo fazia cerca de 100 chamadas à OMDb a cada carr
 | Rodada | Parâmetro de URL `?rodada=N`; o botão é um link para `N+1` (funciona sem JS; "voltar" volta à rodada anterior) |
 | Carrossel | Rolagem horizontal nativa com `scroll-snap`; setas ‹ › só no desktop, num Client Component pequeno |
 | Imagens | `next/image` com `urlImagem(posterPath, "w342")`; sem pôster, um bloco com o título |
-| Carregamento | `loading.tsx` com esqueletos; erros inesperados em `error.tsx` |
+| Carregamento | `<Suspense>` dentro da página, em volta das seções, com esqueletos; erros inesperados em `error.tsx`. Não usar `loading.tsx`: combinado com o redirect da Server Action do onboarding, o Next 16 entrega a página vazia ("The destination stream closed early") |
 | TMDB nos testes E2E | Servidor falso local, apontado por `TMDB_API_URL` |
 
 ### Layout
@@ -70,7 +70,7 @@ Quando a seção vem com `erro: true`:
 
 ### Carregamento e erro geral
 
-- `src/app/(app)/dashboard/loading.tsx`: o topo com esqueleto e 3 seções com títulos e 6 cards em esqueleto (`aria-busy="true"` e texto acessível "Carregando recomendações").
+- O topo (saudação, resumo e botão) aparece na hora. As seções ficam num `<Suspense>` com chave pela rodada, cujo fallback são 3 seções com títulos e 6 cards em esqueleto (`aria-busy="true"` e texto acessível "Carregando recomendações").
 - `src/app/(app)/dashboard/error.tsx` (Client Component): "Não foi possível carregar suas recomendações." e o botão "Tentar de novo" (`reset`).
 
 ### TMDB falso para os testes E2E
@@ -94,7 +94,7 @@ O `playwright.config.ts` passa a subir dois servidores: primeiro o TMDB falso, d
 2. **Testes E2E** (`pnpm test:e2e`, com o TMDB falso) passam:
    - depois do cadastro e do onboarding (Ação + Drama), `/dashboard` mostra as seções "Escolhidos para você", "Ação para você" e "Drama para você", cada uma com cards que têm motivo;
    - o primeiro card de uma seção tem `href` igual a `/filme/{id}`;
-   - "Gerar outras recomendações" leva a `/dashboard?rodada=1` e o primeiro filme de "Escolhidos para você" muda;
+   - "Gerar outras recomendações" leva a `/dashboard?rodada=1` e a lista de filmes da página muda (comparar só o primeiro filme seria instável: o sorteio pode repetir as mesmas páginas de "Escolhidos para você");
    - com Documentário entre os gêneros, a seção "Documentário para você" mostra "Não foi possível carregar agora." e as outras seções têm cards;
    - os testes E2E de fundação, auth e onboarding continuam passando.
 3. `pnpm lint`, `pnpm typecheck`, `pnpm build` e `pnpm check:secrets` terminam sem erros, e o CI passa na `main`.
