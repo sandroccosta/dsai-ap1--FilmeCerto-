@@ -72,6 +72,23 @@ const servidor = createServer((req, res) => {
     return responder(res, 200, pagina(filmes, numero));
   }
 
+  if (url.pathname === "/3/search/movie") {
+    const texto = url.searchParams.get("query") ?? "";
+    const numero = Number(url.searchParams.get("page") ?? 1);
+    if (texto.includes("nada")) {
+      return responder(res, 200, { page: 1, results: [], total_pages: 0, total_results: 0 });
+    }
+    const filmes = Array.from({ length: 20 }, (_, i) =>
+      filme(500000 + numero * 20 + i, `${texto} ${numero}-${i + 1}`, 878, i),
+    );
+    return responder(res, 200, {
+      page: numero,
+      results: filmes,
+      total_pages: 3,
+      total_results: 55,
+    });
+  }
+
   const detalhes = url.pathname.match(/^\/3\/movie\/(\d+)$/);
   if (detalhes) {
     const id = Number(detalhes[1]);

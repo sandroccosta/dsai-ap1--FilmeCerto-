@@ -53,6 +53,8 @@ export type FiltrosDescoberta = {
   duracaoMax?: number;
   notaMin?: number;
   votosMin?: number;
+  /** Ano de lançamento (primary_release_year). */
+  ano?: number;
   ordem?: OrdemDescoberta;
   pagina?: number;
 };

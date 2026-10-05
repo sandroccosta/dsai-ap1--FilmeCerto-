@@ -1,6 +1,8 @@
+import { Search } from "lucide-react";
 import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { sair } from "@/features/auth/actions";
 import { obterUsuarioAtual } from "@/features/auth/sessao";
 
@@ -22,6 +24,22 @@ export async function Header() {
           </Link>
           {usuario ? (
             <>
+              <form action="/busca" method="get" role="search" className="hidden sm:block">
+                <Input
+                  name="q"
+                  type="search"
+                  aria-label="Buscar filmes"
+                  placeholder="Buscar filmes…"
+                  className="h-8 w-44 lg:w-56"
+                />
+              </form>
+              <Link
+                href="/busca"
+                aria-label="Buscar filmes"
+                className="hover:text-foreground transition-colors sm:hidden"
+              >
+                <Search className="size-5" aria-hidden="true" />
+              </Link>
               <Link href="/listas" className="hover:text-foreground transition-colors">
                 Minhas listas
               </Link>

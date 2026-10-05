@@ -54,6 +54,12 @@ describe("descobrirFilmes", () => {
     expect(revalidate).toBe(6 * 3600);
   });
 
+  it("envia primary_release_year quando há ano", async () => {
+    const { api, fetchFalso } = montar(paginaTmdb([]));
+    await api.descobrirFilmes({ ano: 2010 });
+    expect(chamada(fetchFalso).url.searchParams.get("primary_release_year")).toBe("2010");
+  });
+
   it("usa popularidade e página 1 por padrão", async () => {
     const { api, fetchFalso } = montar(paginaTmdb([]));
     await api.descobrirFilmes();

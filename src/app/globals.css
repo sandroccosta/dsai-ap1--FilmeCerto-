@@ -84,6 +84,8 @@
 }
 
 .dark {
+  /* Controles nativos (lista do select, barras de rolagem) também no tema escuro. */
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -126,5 +128,12 @@
   }
   html {
     @apply font-sans;
+  }
+  /* A lista aberta de um <select> é desenhada pelo navegador; no Chrome do Windows ela
+     só respeita as cores definidas no próprio <option>. */
+  option,
+  optgroup {
+    background-color: var(--popover);
+    color: var(--popover-foreground);
   }
 }

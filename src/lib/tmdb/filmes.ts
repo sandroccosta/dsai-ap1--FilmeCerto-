@@ -122,6 +122,7 @@ export function criarApiFilmes(cliente: ClienteTmdb) {
         "with_runtime.lte": filtros.duracaoMax,
         "vote_average.gte": filtros.notaMin,
         "vote_count.gte": filtros.votosMin,
+        primary_release_year: filtros.ano,
         sort_by: ORDENS[filtros.ordem ?? "popularidade"],
         page: limitarPagina(filtros.pagina),
         region: "BR",
