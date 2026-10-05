@@ -10,7 +10,15 @@ const validEnv = {
 
 describe("parseServerEnv", () => {
   it("retorna os valores tipados quando todas as variáveis estão presentes", () => {
-    expect(parseServerEnv(validEnv)).toEqual(validEnv);
+    expect(parseServerEnv(validEnv)).toEqual({
+      ...validEnv,
+      TMDB_API_URL: "https://api.themoviedb.org/3",
+    });
+  });
+
+  it("aceita outra URL base para o TMDB", () => {
+    const env = parseServerEnv({ ...validEnv, TMDB_API_URL: "http://127.0.0.1:4010/3" });
+    expect(env.TMDB_API_URL).toBe("http://127.0.0.1:4010/3");
   });
 
   it("lança EnvError citando a variável ausente", () => {

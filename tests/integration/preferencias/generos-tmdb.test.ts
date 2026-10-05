@@ -2,21 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { GENEROS } from "@/features/preferencias/generos";
 
-for (const arquivo of [".env.local", ".env"]) {
-  try {
-    process.loadEnvFile(arquivo);
-  } catch {
-    // Arquivo ausente.
-  }
-}
+import { TOKEN_TMDB_REAL } from "../../support/tmdb-real";
 
-const token = process.env.TMDB_READ_TOKEN;
-
-// No CI o token é falso; localmente, só roda com um token real configurado.
-describe.skipIf(!token || process.env.CI)("gêneros contra o TMDB", () => {
+describe.skipIf(!TOKEN_TMDB_REAL)("gêneros contra o TMDB", () => {
   it("a constante GENEROS é igual à lista de gêneros de filme do TMDB em pt-BR", async () => {
     const resposta = await fetch("https://api.themoviedb.org/3/genre/movie/list?language=pt-BR", {
-      headers: { Authorization: `Bearer ${token}`, accept: "application/json" },
+      headers: { Authorization: `Bearer ${TOKEN_TMDB_REAL}`, accept: "application/json" },
     });
     expect(resposta.status).toBe(200);
 

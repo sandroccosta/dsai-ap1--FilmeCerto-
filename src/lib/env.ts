@@ -7,6 +7,7 @@ const publicSchema = z.object({
 
 const serverSchema = publicSchema.extend({
   TMDB_READ_TOKEN: z.string().min(1),
+  TMDB_API_URL: z.url().default("https://api.themoviedb.org/3"),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;
