@@ -78,7 +78,7 @@ type EntradaMotor = {
 };
 ```
 
-`reacoes` e `excluir` já existem na entrada para que as specs `reacoes`, `listas` e `filmes-ocultos` só precisem passar os dados, sem mudar o motor.
+`reacoes` e `excluir` já existem na entrada para que as specs `reacoes` e `listas` só precisem passar os dados, sem mudar o motor.
 
 ### Perfil pela duração e pela frequência
 
@@ -183,7 +183,7 @@ function gerarRecomendacoes(entrada: EntradaMotor, api?: ApiFilmes): Promise<Sec
 | Carrosséis, cards e o botão "Gerar outras recomendações" | spec `dashboard` |
 | Marcar reações a um filme e guardá-las (com os gêneros do filme, para o bônus) | spec `reacoes`; o motor já aceita `reacoes` na entrada |
 | Excluir filmes já assistidos ou na lista | spec `listas`, via `excluir` |
-| Excluir filmes marcados como "não me interessa" | spec `filmes-ocultos`, via `excluir` |
+| Excluir filmes marcados como "não me interessa" | **cancelada** (spec `listas`): a reação "Não é pra mim" (spec `reacoes`) já esconde o filme e ensina o motor |
 | Similaridade por conteúdo (vetores de palavras-chave, elenco, direção) | **descartado por ora**: mais chamadas e calibração para ganho incerto |
 | Filtragem colaborativa própria (fatoração de matriz) | **descartado**: poucos usuários para aprender algo útil |
 | Embeddings / redes neurais (LLM, pgvector) | **descartado**: custo, chave de API e infraestrutura fora do prazo |

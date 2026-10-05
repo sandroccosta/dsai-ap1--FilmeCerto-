@@ -44,7 +44,7 @@ No MovieMatch antigo, os detalhes eram buscados na OMDb **pelo título**, o que 
    - Linha de dados: ano · duração · nota "★ 8.4 (30.000 votos)". Itens ausentes são omitidos.
    - Gêneros como etiquetas.
    - Slogan em itálico, se houver.
-   - Uma área vazia com `data-testid="acoes-filme"` reservada para os botões das specs `reacoes`, `listas` e `filmes-ocultos`.
+   - Uma área vazia com `data-testid="acoes-filme"` reservada para os botões das specs `reacoes` e `listas`.
 3. **Sinopse** (h2 "Sinopse"); sem sinopse: "Sinopse não disponível em português."
 4. **Direção:** "Direção: Nome1, Nome2" (omitida se vazia).
 5. **Trailer** (h2 "Trailer"), só se `trailerYoutube` não for `null`:
@@ -109,7 +109,7 @@ Para o critério de sessão, o proxy passa a proteger também `/filme`.
 |---|---|
 | Reagir ao filme ("Não é pra mim", "Gostei", "Amei") | spec `reacoes` (usa a área `acoes-filme`) |
 | "Quero assistir" / "Já assisti" | spec `listas` (usa a área `acoes-filme`) |
-| "Não me interessa" | spec `filmes-ocultos` (usa a área `acoes-filme`) |
+| "Não me interessa" | **cancelada** (spec `listas`): a reação "Não é pra mim" (spec `reacoes`) já esconde o filme e ensina o motor |
 | Página pública do filme, para compartilhar sem login | **descartado por ora**: os botões de ação exigiriam um estado "entre para avaliar" |
 | Página de pessoas (ator, diretor) | **não planejado** |
 | Avaliações e críticas de outros usuários | **não planejado** |

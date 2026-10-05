@@ -107,6 +107,6 @@ O `playwright.config.ts` passa a subir dois servidores: primeiro o TMDB falso, d
 | Página do filme (`/filme/{id}`); até lá o link cai no 404 | spec `detalhes-filme` |
 | Reagir a filmes com "Não é pra mim", "Gostei" ou "Amei" (faz surgir a seção "Porque você amou X") | spec `reacoes` |
 | Botões "quero assistir" / "já assisti" nos cards | spec `listas` |
-| Botão "não me interessa" nos cards | spec `filmes-ocultos` |
+| Botão "não me interessa" nos cards | **cancelada** (spec `listas`): a reação "Não é pra mim" (spec `reacoes`) já esconde o filme e ensina o motor |
 | Editar preferências a partir do dashboard | spec `perfil` |
 | Busca por título no header | spec `busca` |
