@@ -43,9 +43,12 @@ export async function Header() {
               <Link href="/listas" className="hover:text-foreground transition-colors">
                 Minhas listas
               </Link>
-              <span className="text-foreground hidden max-w-40 truncate sm:inline">
+              <Link
+                href="/perfil"
+                className="text-foreground hover:text-primary hidden max-w-40 truncate transition-colors sm:inline"
+              >
                 {usuario.nome}
-              </span>
+              </Link>
               <form action={sair}>
                 <Button type="submit" variant="outline" size="sm">
                   Sair

@@ -13,6 +13,13 @@ const email = z
   .trim()
   .pipe(z.email({ error: MENSAGENS.email }));
 
+/** Nome exibido no app; usado no cadastro e no perfil. */
+export const nomeSchema = z
+  .string()
+  .trim()
+  .min(2, { error: MENSAGENS.nome })
+  .max(50, { error: MENSAGENS.nome });
+
 export const loginSchema = z.object({
   email,
   senha: z.string().min(1, { error: MENSAGENS.senhaLogin }),
@@ -20,7 +27,7 @@ export const loginSchema = z.object({
 
 export const cadastroSchema = z
   .object({
-    nome: z.string().trim().min(2, { error: MENSAGENS.nome }).max(50, { error: MENSAGENS.nome }),
+    nome: nomeSchema,
     email,
     senha: z
       .string()

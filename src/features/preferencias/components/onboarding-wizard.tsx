@@ -1,13 +1,12 @@
 "use client";
 
-import { cn } from "cn";
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { MensagemErro } from "@/features/auth/components/mensagem-erro";
 import { salvarPreferencias } from "@/features/preferencias/actions";
+import { alternar, ChipsGeneros } from "@/features/preferencias/components/chips-generos";
 import { GrupoOpcoes } from "@/features/preferencias/components/grupo-opcoes";
-import { GENEROS, MAX_GENEROS } from "@/features/preferencias/generos";
 import {
   DURACOES,
   FREQUENCIAS,
@@ -26,17 +25,10 @@ export function OnboardingWizard() {
   const [duracao, setDuracao] = useState<Duracao>();
   const [frequencia, setFrequencia] = useState<Frequencia>();
 
-  const limiteAtingido = generos.length >= MAX_GENEROS;
   const passoValido =
     (passo === 1 && generos.length > 0) ||
     (passo === 2 && duracao !== undefined) ||
     (passo === 3 && frequencia !== undefined);
-
-  function alternarGenero(id: number) {
-    setGeneros((atuais) =>
-      atuais.includes(id) ? atuais.filter((atual) => atual !== id) : [...atuais, id],
-    );
-  }
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -62,37 +54,11 @@ export function OnboardingWizard() {
       <MensagemErro mensagem={estado.mensagem} />
 
       {passo === 1 && (
-        <div className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Quais gêneros você mais curte?</h2>
-          <p className="text-muted-foreground text-sm">
-            {limiteAtingido
-              ? "Você pode escolher até 5 gêneros."
-              : "Escolha de 1 a 5. Eles guiam suas recomendações."}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {GENEROS.map(({ id, nome }) => {
-              const marcado = generos.includes(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  aria-pressed={marcado}
-                  disabled={!marcado && limiteAtingido}
-                  onClick={() => alternarGenero(id)}
-                  className={cn(
-                    "border-border rounded-full border px-4 py-2 text-sm transition-colors outline-none",
-                    "hover:bg-muted focus-visible:ring-ring/50 focus-visible:ring-3",
-                    "disabled:cursor-not-allowed disabled:opacity-40",
-                    marcado &&
-                      "border-primary bg-primary text-primary-foreground hover:bg-primary/80",
-                  )}
-                >
-                  {nome}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <ChipsGeneros
+          titulo="Quais gêneros você mais curte?"
+          selecionados={generos}
+          aoAlternar={(id) => setGeneros((atuais) => alternar(atuais, id))}
+        />
       )}
 
       {passo === 2 && (
