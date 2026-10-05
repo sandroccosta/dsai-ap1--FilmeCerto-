@@ -10,6 +10,7 @@ import { SecoesRecomendadas } from "@/features/dashboard/components/secoes-recom
 import { lerRodada } from "@/features/dashboard/rodada";
 import { obterPreferencias } from "@/features/preferencias/consultas";
 import { resumirPreferencias } from "@/features/preferencias/resumo";
+import { obterReacoes } from "@/features/reacoes/consultas";
 
 export const metadata: Metadata = { title: "Início" };
 
@@ -19,6 +20,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   if (!preferencias) redirect("/onboarding");
 
   const rodada = lerRodada((await searchParams).rodada);
+  const reacoes = await obterReacoes();
   const urlAtual = rodada ? `/dashboard?rodada=${rodada}` : "/dashboard";
   const proximaRodada = `/dashboard?rodada=${rodada + 1}`;
 
@@ -39,7 +41,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       {/* A chave por rodada mostra o esqueleto de novo a cada "Gerar outras recomendações". */}
       <Suspense key={rodada} fallback={<EsqueletoSecoes />}>
         <SecoesRecomendadas
-          entrada={{ preferencias, usuarioId: usuario.id, data: new Date(), rodada }}
+          entrada={{ preferencias, usuarioId: usuario.id, data: new Date(), rodada, reacoes }}
           urlAtual={urlAtual}
           proximaRodada={proximaRodada}
         />

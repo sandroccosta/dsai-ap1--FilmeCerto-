@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { motivoParecido, motivoPorGeneros } from "@/features/recomendacao/motivo";
+import { motivoParecido, motivoPorGeneros, tituloParecidos } from "@/features/recomendacao/motivo";
 import { agregarParecidos } from "@/features/recomendacao/parecidos";
 import { bonusPorGenero, pontuar } from "@/features/recomendacao/ranquear";
-import type { AvaliacaoMotor } from "@/features/recomendacao/tipos";
+import type { ReacaoMotor } from "@/features/recomendacao/tipos";
 
 import { filme, geradorFixo } from "./fabrica";
 
@@ -38,38 +38,47 @@ describe("pontuar", () => {
     expect(unico?.pontuacao).toBeCloseTo(0.5 * 0.5 + 0.3 * 0.8 + 0.2 * 1);
   });
 
-  it("o bônus de uma avaliação 5★ sobe filmes do mesmo gênero", () => {
+  it("o bônus de um Amei sobe filmes do mesmo gênero", () => {
     const filmes = [filme(1, { generos: [27] }), filme(2, { generos: [35] })];
-    const avaliacoes: AvaliacaoMotor[] = [{ tmdbId: 9, titulo: "X", nota: 5, generos: [35] }];
+    const reacoes: ReacaoMotor[] = [{ tmdbId: 9, titulo: "X", reacao: "amei", generos: [35] }];
 
     expect(ordemIds(pontuar(filmes, contexto([18])))).toEqual([1, 2]);
-    expect(ordemIds(pontuar(filmes, contexto([18], bonusPorGenero(avaliacoes))))).toEqual([2, 1]);
+    expect(ordemIds(pontuar(filmes, contexto([18], bonusPorGenero(reacoes))))).toEqual([2, 1]);
   });
 
   it("bonusPorGenero soma os pesos por estrela", () => {
     const bonus = bonusPorGenero([
-      { tmdbId: 1, titulo: "A", nota: 5, generos: [18, 53] },
-      { tmdbId: 2, titulo: "B", nota: 1, generos: [18] },
-      { tmdbId: 3, titulo: "C", nota: 4, generos: [53] },
+      { tmdbId: 1, titulo: "A", reacao: "amei", generos: [18, 53] },
+      { tmdbId: 2, titulo: "B", reacao: "nao-gostei", generos: [18] },
+      { tmdbId: 3, titulo: "C", reacao: "gostei", generos: [53] },
     ]);
     expect(bonus.get(18)).toBeCloseTo(0);
     expect(bonus.get(53)).toBeCloseTo(0.15);
   });
+
+  it("o bônus de um Não é pra mim desce filmes do mesmo gênero", () => {
+    const filmes = [filme(1, { generos: [27] }), filme(2, { generos: [35] })];
+    const reacoes: ReacaoMotor[] = [
+      { tmdbId: 9, titulo: "X", reacao: "nao-gostei", generos: [27] },
+    ];
+    expect(ordemIds(pontuar(filmes, contexto([27, 35])))).toEqual([1, 2]);
+    expect(ordemIds(pontuar(filmes, contexto([27, 35], bonusPorGenero(reacoes))))).toEqual([2, 1]);
+  });
 });
 
 describe("agregarParecidos", () => {
-  const origem = (tmdbId: number, nota: AvaliacaoMotor["nota"]): AvaliacaoMotor => ({
+  const origem = (tmdbId: number, tipo: ReacaoMotor["reacao"]): ReacaoMotor => ({
     tmdbId,
     titulo: `Origem ${tmdbId}`,
-    nota,
+    reacao: tipo,
     generos: [18],
   });
 
   it("filme presente nas listas de duas origens fica à frente de um presente em só uma", () => {
     const secoes = agregarParecidos(
       [
-        { origem: origem(100, 5), filmes: [filme(1), filme(2), filme(10)] },
-        { origem: origem(200, 5), filmes: [filme(3), filme(2), filme(11)] },
+        { origem: origem(100, "amei"), filmes: [filme(1), filme(2), filme(10)] },
+        { origem: origem(200, "amei"), filmes: [filme(3), filme(2), filme(11)] },
       ],
       new Set(),
     );
@@ -77,11 +86,11 @@ describe("agregarParecidos", () => {
     expect(todos[0]?.id).toBe(2);
   });
 
-  it("origem 5★ pesa mais que 4★", () => {
+  it("origem Amei pesa mais que Gostei", () => {
     const secoes = agregarParecidos(
       [
-        { origem: origem(100, 4), filmes: [filme(1)] },
-        { origem: origem(200, 5), filmes: [filme(2)] },
+        { origem: origem(100, "gostei"), filmes: [filme(1)] },
+        { origem: origem(200, "amei"), filmes: [filme(2)] },
       ],
       new Set(),
     );
@@ -90,11 +99,11 @@ describe("agregarParecidos", () => {
     expect(secoes[1]?.filmes[0]?.peso).toBeCloseTo(0.6);
   });
 
-  it("não devolve filmes excluídos nem os próprios filmes avaliados", () => {
+  it("não devolve filmes excluídos nem os próprios filmes com reação", () => {
     const secoes = agregarParecidos(
       [
-        { origem: origem(100, 5), filmes: [filme(200), filme(7), filme(8)] },
-        { origem: origem(200, 5), filmes: [filme(100), filme(9)] },
+        { origem: origem(100, "amei"), filmes: [filme(200), filme(7), filme(8)] },
+        { origem: origem(200, "amei"), filmes: [filme(100), filme(9)] },
       ],
       new Set([8]),
     );
@@ -112,9 +121,12 @@ describe("motivo", () => {
     expect(motivoPorGeneros(generos, [18, 53, 80, 28])).toBe(texto);
   });
 
-  it("explica os parecidos", () => {
-    expect(motivoParecido({ tmdbId: 1, titulo: "Interestelar", nota: 5, generos: [] })).toBe(
-      "Parecido com Interestelar, que você deu 5★",
-    );
+  it("explica os parecidos e dá título à seção", () => {
+    const amei: ReacaoMotor = { tmdbId: 1, titulo: "Interestelar", reacao: "amei", generos: [] };
+    const gostei: ReacaoMotor = { ...amei, reacao: "gostei" };
+    expect(motivoParecido(amei)).toBe("Parecido com Interestelar, que você amou");
+    expect(motivoParecido(gostei)).toBe("Parecido com Interestelar, que você gostou");
+    expect(tituloParecidos(amei)).toBe("Porque você amou Interestelar");
+    expect(tituloParecidos(gostei)).toBe("Porque você gostou de Interestelar");
   });
 });

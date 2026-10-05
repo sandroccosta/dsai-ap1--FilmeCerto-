@@ -1,17 +1,17 @@
-import type { AvaliacaoMotor } from "@/features/recomendacao/tipos";
+import type { ReacaoMotor } from "@/features/recomendacao/tipos";
 import type { FilmeResumo } from "@/lib/tmdb/tipos";
 
-const PESO_ORIGEM: Partial<Record<AvaliacaoMotor["nota"], number>> = { 5: 1, 4: 0.6 };
+const PESO_ORIGEM: Partial<Record<ReacaoMotor["reacao"], number>> = { amei: 1, gostei: 0.6 };
 const MAX_POR_SECAO = 20;
 
-export type ListaDeParecidos = { origem: AvaliacaoMotor; filmes: FilmeResumo[] };
+export type ListaDeParecidos = { origem: ReacaoMotor; filmes: FilmeResumo[] };
 export type SecaoParecidos = {
-  origem: AvaliacaoMotor;
+  origem: ReacaoMotor;
   filmes: (FilmeResumo & { peso: number })[];
 };
 
 /**
- * Junta as recomendações do TMDB de cada filme bem avaliado. Cada candidato soma
+ * Junta as recomendações do TMDB de cada filme marcado com "Amei" ou "Gostei". Cada candidato soma
  * `peso da origem × (1 − posição / tamanho da lista)` em todas as listas em que aparece,
  * e fica na seção da origem que mais contribuiu para ele.
  */
@@ -19,16 +19,16 @@ export function agregarParecidos(
   listas: ListaDeParecidos[],
   excluir: ReadonlySet<number>,
 ): SecaoParecidos[] {
-  const avaliados = new Set(listas.map(({ origem }) => origem.tmdbId));
+  const comReacao = new Set(listas.map(({ origem }) => origem.tmdbId));
   const candidatos = new Map<
     number,
-    { filme: FilmeResumo; peso: number; melhorOrigem: AvaliacaoMotor; melhorContribuicao: number }
+    { filme: FilmeResumo; peso: number; melhorOrigem: ReacaoMotor; melhorContribuicao: number }
   >();
 
   for (const { origem, filmes } of listas) {
-    const pesoOrigem = PESO_ORIGEM[origem.nota] ?? 0;
+    const pesoOrigem = PESO_ORIGEM[origem.reacao] ?? 0;
     filmes.forEach((filme, posicao) => {
-      if (excluir.has(filme.id) || avaliados.has(filme.id)) return;
+      if (excluir.has(filme.id) || comReacao.has(filme.id)) return;
       const contribuicao = pesoOrigem * (1 - posicao / filmes.length);
       const atual = candidatos.get(filme.id);
       if (!atual) {

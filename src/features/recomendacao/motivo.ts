@@ -1,5 +1,6 @@
 import { GENEROS } from "@/features/preferencias/generos";
-import type { AvaliacaoMotor } from "@/features/recomendacao/tipos";
+import { VERBO_REACAO } from "@/features/reacoes/opcoes";
+import type { ReacaoMotor } from "@/features/recomendacao/tipos";
 
 const MAX_GENEROS_NO_MOTIVO = 3;
 
@@ -17,6 +18,14 @@ export function motivoPorGeneros(generosDoFilme: number[], favoritos: number[]):
   return `Porque você curte ${listar(emComum.slice(0, MAX_GENEROS_NO_MOTIVO))}`;
 }
 
-export function motivoParecido(origem: AvaliacaoMotor): string {
-  return `Parecido com ${origem.titulo}, que você deu ${origem.nota}★`;
+/** "Parecido com X, que você amou". */
+export function motivoParecido(origem: ReacaoMotor): string {
+  const verbo = origem.reacao === "nao-gostei" ? null : VERBO_REACAO[origem.reacao];
+  return verbo ? `Parecido com ${origem.titulo}, ${verbo.motivo}` : `Parecido com ${origem.titulo}`;
+}
+
+/** "Porque você amou X" / "Porque você gostou de X". */
+export function tituloParecidos(origem: ReacaoMotor): string {
+  const verbo = origem.reacao === "nao-gostei" ? null : VERBO_REACAO[origem.reacao];
+  return verbo ? `${verbo.titulo} ${origem.titulo}` : `Parecidos com ${origem.titulo}`;
 }

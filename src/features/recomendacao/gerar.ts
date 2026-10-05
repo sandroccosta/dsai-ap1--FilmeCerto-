@@ -1,7 +1,7 @@
 import "server-only";
 
 import { GENEROS } from "@/features/preferencias/generos";
-import { motivoParecido, motivoPorGeneros } from "@/features/recomendacao/motivo";
+import { motivoParecido, motivoPorGeneros, tituloParecidos } from "@/features/recomendacao/motivo";
 import { agregarParecidos } from "@/features/recomendacao/parecidos";
 import { planejar, type Consulta } from "@/features/recomendacao/planejar";
 import { bonusPorGenero, pontuar } from "@/features/recomendacao/ranquear";
@@ -42,15 +42,15 @@ export async function gerarRecomendacoes(
   entrada: EntradaMotor,
   api: ApiMotor = API_PADRAO,
 ): Promise<Secao[]> {
-  const { preferencias, avaliacoes = [] } = entrada;
+  const { preferencias, reacoes = [] } = entrada;
   const gerador = criarGerador(entrada.usuarioId, entrada.data, entrada.rodada ?? 0);
   const plano = planejar(entrada, gerador);
   const resultados = await Promise.all(plano.map((consulta) => executar(consulta, api)));
 
-  // Já avaliados contam como vistos: não voltam como recomendação.
-  const bloqueados = new Set([...(entrada.excluir ?? []), ...avaliacoes.map((a) => a.tmdbId)]);
+  // Filmes com qualquer reação já foram vistos: não voltam como recomendação.
+  const bloqueados = new Set([...(entrada.excluir ?? []), ...reacoes.map((r) => r.tmdbId)]);
   const usados = new Set<number>();
-  const contexto = { favoritos: preferencias.generos, bonus: bonusPorGenero(avaliacoes), gerador };
+  const contexto = { favoritos: preferencias.generos, bonus: bonusPorGenero(reacoes), gerador };
 
   function escolher(filmes: FilmeResumo[]): Recomendacao[] {
     const livres = semRepetidos(filmes).filter((f) => !bloqueados.has(f.id) && !usados.has(f.id));
@@ -93,7 +93,7 @@ export async function gerarRecomendacoes(
     for (const filme of recomendacoes) usados.add(filme.id);
     secoes.push({
       id: `parecidos-${origem.tmdbId}`,
-      titulo: `Porque você deu ${origem.nota}★ para ${origem.titulo}`,
+      titulo: tituloParecidos(origem),
       filmes: recomendacoes,
     });
   }

@@ -1,10 +1,11 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import { formatarDuracao, formatarVotos } from "@/features/filme/formatar";
 import { urlImagem } from "@/lib/tmdb/imagens";
 import type { FilmeDetalhes } from "@/lib/tmdb/tipos";
 
-export function CabecalhoFilme({ filme }: { filme: FilmeDetalhes }) {
+export function CabecalhoFilme({ filme, acoes }: { filme: FilmeDetalhes; acoes?: ReactNode }) {
   const fundo = urlImagem(filme.backdropPath, "w1280");
   const poster = urlImagem(filme.posterPath, "w500");
   const dados = [
@@ -59,8 +60,10 @@ export function CabecalhoFilme({ filme }: { filme: FilmeDetalhes }) {
             </ul>
           )}
           {filme.slogan && <p className="text-muted-foreground italic">{filme.slogan}</p>}
-          {/* Botões de avaliação, listas e "não me interessa" entram aqui nas próximas specs. */}
-          <div data-testid="acoes-filme" className="flex flex-wrap gap-2 empty:hidden" />
+          {/* Reações; listas e "não me interessa" entram aqui nas próximas specs. */}
+          <div data-testid="acoes-filme" className="flex flex-wrap gap-2 empty:hidden">
+            {acoes}
+          </div>
         </div>
       </div>
     </div>

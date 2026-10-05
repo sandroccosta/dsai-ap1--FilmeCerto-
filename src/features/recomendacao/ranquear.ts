@@ -1,22 +1,21 @@
-import type { AvaliacaoMotor, Gerador } from "@/features/recomendacao/tipos";
+import type { Reacao } from "@/features/reacoes/opcoes";
+import type { Gerador, ReacaoMotor } from "@/features/recomendacao/tipos";
 import type { FilmeResumo } from "@/lib/tmdb/tipos";
 
-const PESO_POR_ESTRELA: Record<AvaliacaoMotor["nota"], number> = {
-  5: 0.1,
-  4: 0.05,
-  3: 0,
-  2: -0.05,
-  1: -0.1,
+const PESO_POR_REACAO: Record<Reacao, number> = {
+  amei: 0.1,
+  gostei: 0.05,
+  "nao-gostei": -0.1,
 };
 
 const DESEMPATE_MAX = 0.02;
 
-/** Soma, por gênero, o peso das estrelas dadas a filmes daquele gênero. */
-export function bonusPorGenero(avaliacoes: AvaliacaoMotor[] = []): Map<number, number> {
+/** Soma, por gênero, o peso das reações dadas a filmes daquele gênero. */
+export function bonusPorGenero(reacoes: ReacaoMotor[] = []): Map<number, number> {
   const bonus = new Map<number, number>();
-  for (const { nota, generos } of avaliacoes) {
+  for (const { reacao, generos } of reacoes) {
     for (const genero of generos) {
-      bonus.set(genero, (bonus.get(genero) ?? 0) + PESO_POR_ESTRELA[nota]);
+      bonus.set(genero, (bonus.get(genero) ?? 0) + PESO_POR_REACAO[reacao]);
     }
   }
   return bonus;

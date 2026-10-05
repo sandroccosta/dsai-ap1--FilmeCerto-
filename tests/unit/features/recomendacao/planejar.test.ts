@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { planejar } from "@/features/recomendacao/planejar";
 import { criarGerador } from "@/features/recomendacao/semente";
-import type { AvaliacaoMotor, EntradaMotor } from "@/features/recomendacao/tipos";
+import type { EntradaMotor, ReacaoMotor } from "@/features/recomendacao/tipos";
 
 function entrada(sobrescrever: Partial<EntradaMotor> = {}): EntradaMotor {
   return {
@@ -13,10 +13,10 @@ function entrada(sobrescrever: Partial<EntradaMotor> = {}): EntradaMotor {
   };
 }
 
-const avaliacao = (tmdbId: number, nota: AvaliacaoMotor["nota"]): AvaliacaoMotor => ({
+const reacao = (tmdbId: number, tipo: ReacaoMotor["reacao"]): ReacaoMotor => ({
   tmdbId,
   titulo: `Filme ${tmdbId}`,
-  nota,
+  reacao: tipo,
   generos: [18],
 });
 
@@ -58,16 +58,16 @@ describe("planejar", () => {
     expect(paginas.sort()).toEqual([1, 2]);
   });
 
-  it("gera 1 consulta de parecidos por avaliação 4★ ou 5★, no máximo 3, as mais altas primeiro", () => {
+  it("gera 1 consulta de parecidos por Amei ou Gostei, no máximo 3, Amei primeiro", () => {
     const plano = planejar(
       entrada({
-        avaliacoes: [
-          avaliacao(1, 4),
-          avaliacao(2, 3),
-          avaliacao(3, 5),
-          avaliacao(4, 1),
-          avaliacao(5, 4),
-          avaliacao(6, 5),
+        reacoes: [
+          reacao(1, "gostei"),
+          reacao(2, "nao-gostei"),
+          reacao(3, "amei"),
+          reacao(4, "nao-gostei"),
+          reacao(5, "gostei"),
+          reacao(6, "amei"),
         ],
       }),
       criarGerador("u1", new Date(), 0),
@@ -76,7 +76,7 @@ describe("planejar", () => {
     expect(origens).toEqual([3, 6, 1]);
   });
 
-  it("sem avaliações não há consultas de parecidos", () => {
+  it("sem reações não há consultas de parecidos", () => {
     const plano = planejar(entrada(), criarGerador("u1", new Date(), 0));
     expect(plano.some((c) => c.tipo === "parecidos")).toBe(false);
   });

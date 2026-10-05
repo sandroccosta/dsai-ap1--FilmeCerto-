@@ -1,25 +1,29 @@
 import { GENEROS } from "@/features/preferencias/generos";
 import { filtrosDeDuracao, PERFIS } from "@/features/recomendacao/perfil";
 import { sortearInteiro } from "@/features/recomendacao/semente";
-import type { AvaliacaoMotor, EntradaMotor, Gerador } from "@/features/recomendacao/tipos";
+import type { ReacaoMotor, EntradaMotor, Gerador } from "@/features/recomendacao/tipos";
 import type { FiltrosDescoberta } from "@/lib/tmdb/tipos";
 
 export type Consulta =
   | { tipo: "para-voce"; filtros: FiltrosDescoberta }
-  | { tipo: "parecidos"; origem: AvaliacaoMotor }
+  | { tipo: "parecidos"; origem: ReacaoMotor }
   | { tipo: "genero"; generoId: number; filtros: FiltrosDescoberta };
 
 const MAX_ORIGENS_PARECIDOS = 3;
 
-/** Avaliações de 4★ e 5★ que viram fonte de parecidos: as mais altas, até 3. */
-export function origensDeParecidos(avaliacoes: AvaliacaoMotor[] = []): AvaliacaoMotor[] {
-  return avaliacoes
-    .filter((avaliacao) => avaliacao.nota >= 4)
-    .sort((a, b) => b.nota - a.nota)
+const PRIORIDADE = { amei: 0, gostei: 1 } as const;
+
+/** Reações "Amei" e "Gostei" que viram fonte de parecidos: "Amei" primeiro, até 3. */
+export function origensDeParecidos(reacoes: ReacaoMotor[] = []): ReacaoMotor[] {
+  return reacoes
+    .filter(
+      (r): r is ReacaoMotor & { reacao: keyof typeof PRIORIDADE } => r.reacao !== "nao-gostei",
+    )
+    .sort((a, b) => PRIORIDADE[a.reacao] - PRIORIDADE[b.reacao])
     .slice(0, MAX_ORIGENS_PARECIDOS);
 }
 
-export function planejar({ preferencias, avaliacoes }: EntradaMotor, gerador: Gerador): Consulta[] {
+export function planejar({ preferencias, reacoes }: EntradaMotor, gerador: Gerador): Consulta[] {
   const perfil = PERFIS[preferencias.frequencia];
   const base: FiltrosDescoberta = {
     ...filtrosDeDuracao(preferencias.duracao),
@@ -43,7 +47,7 @@ export function planejar({ preferencias, avaliacoes }: EntradaMotor, gerador: Ge
           filtros: { ...base, generos: preferencias.generos, ordem, pagina: 1 },
         }));
 
-  const parecidos: Consulta[] = origensDeParecidos(avaliacoes).map((origem) => ({
+  const parecidos: Consulta[] = origensDeParecidos(reacoes).map((origem) => ({
     tipo: "parecidos",
     origem,
   }));

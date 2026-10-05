@@ -10,6 +10,8 @@ import { CabecalhoFilme } from "@/features/filme/components/cabecalho-filme";
 import { Elenco } from "@/features/filme/components/elenco";
 import { OndeAssistir } from "@/features/filme/components/onde-assistir";
 import { Trailer } from "@/features/filme/components/trailer";
+import { BotoesReacao } from "@/features/reacoes/components/botoes-reacao";
+import { obterReacao } from "@/features/reacoes/consultas";
 import { obterFilme } from "@/lib/tmdb/filmes";
 
 /** Só inteiros positivos de até 10 dígitos são IDs válidos do TMDB. */
@@ -43,6 +45,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 export default async function FilmePage({ params }: PageProps<"/filme/[id]">) {
   const filme = await buscarFilme((await params).id);
   if (!filme) notFound();
+  const reacao = await obterReacao(filme.id);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
@@ -53,7 +56,10 @@ export default async function FilmePage({ params }: PageProps<"/filme/[id]">) {
         <ArrowLeft className="size-4" aria-hidden="true" /> Voltar
       </Link>
 
-      <CabecalhoFilme filme={filme} />
+      <CabecalhoFilme
+        filme={filme}
+        acoes={<BotoesReacao key={reacao ?? "nenhuma"} tmdbId={filme.id} atual={reacao} />}
+      />
 
       <Secao titulo="Sinopse">
         <p className="max-w-3xl leading-relaxed">

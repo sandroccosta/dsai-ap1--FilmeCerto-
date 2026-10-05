@@ -51,6 +51,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      reacoes: {
+        Row: {
+          atualizado_em: string;
+          criado_em: string;
+          generos: number[];
+          reacao: Database["public"]["Enums"]["reacao_filme"];
+          titulo: string;
+          tmdb_id: number;
+          usuario_id: string;
+        };
+        Insert: {
+          atualizado_em?: string;
+          criado_em?: string;
+          generos?: number[];
+          reacao: Database["public"]["Enums"]["reacao_filme"];
+          titulo: string;
+          tmdb_id: number;
+          usuario_id: string;
+        };
+        Update: {
+          atualizado_em?: string;
+          criado_em?: string;
+          generos?: number[];
+          reacao?: Database["public"]["Enums"]["reacao_filme"];
+          titulo?: string;
+          tmdb_id?: number;
+          usuario_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -61,6 +91,7 @@ export type Database = {
     Enums: {
       duracao_preferida: "curta" | "media" | "longa" | "indiferente";
       frequencia_assistir: "raramente" | "mensal" | "semanal" | "diaria";
+      reacao_filme: "nao-gostei" | "gostei" | "amei";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -174,6 +205,7 @@ export const Constants = {
     Enums: {
       duracao_preferida: ["curta", "media", "longa", "indiferente"],
       frequencia_assistir: ["raramente", "mensal", "semanal", "diaria"],
+      reacao_filme: ["nao-gostei", "gostei", "amei"],
     },
   },
 } as const;

@@ -72,24 +72,27 @@ describe("gerarRecomendacoes", () => {
     expect(pontuacoes).toEqual([...pontuacoes].sort((a, b) => b - a));
   });
 
-  it("inclui as seções de parecidos depois de 'para você' e exclui os avaliados", async () => {
+  it("inclui as seções de parecidos depois de 'para você' e exclui os filmes com reação", async () => {
     const secoes = await gerarRecomendacoes(
       {
         ...entrada,
-        avaliacoes: [
-          { tmdbId: 700, titulo: "Interestelar", nota: 5, generos: [878] },
-          { tmdbId: 5000, titulo: "Já visto", nota: 4, generos: [18] },
+        reacoes: [
+          { tmdbId: 700, titulo: "Interestelar", reacao: "amei", generos: [878] },
+          { tmdbId: 5000, titulo: "Já visto", reacao: "gostei", generos: [18] },
+          { tmdbId: 1001, titulo: "Não curti", reacao: "nao-gostei", generos: [27] },
         ],
       },
       apiFalsa(),
     );
 
     expect(secoes.map((s) => s.id).slice(0, 2)).toEqual(["para-voce", "parecidos-700"]);
-    expect(secoes[1]?.titulo).toBe("Porque você deu 5★ para Interestelar");
-    expect(secoes[1]?.filmes[0]?.motivo).toBe("Parecido com Interestelar, que você deu 5★");
+    expect(secoes[1]?.titulo).toBe("Porque você amou Interestelar");
+    expect(secoes[1]?.filmes[0]?.motivo).toBe("Parecido com Interestelar, que você amou");
     const ids = secoes.flatMap((s) => s.filmes.map((f) => f.id));
     expect(ids).not.toContain(5000);
     expect(ids).not.toContain(700);
+    expect(ids).not.toContain(1001);
+    expect(secoes.some((s) => s.id === "parecidos-1001")).toBe(false);
   });
 
   it("nunca devolve filmes em 'excluir'", async () => {

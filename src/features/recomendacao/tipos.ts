@@ -1,11 +1,12 @@
 import type { Duracao, Frequencia } from "@/features/preferencias/opcoes";
+import type { Reacao } from "@/features/reacoes/opcoes";
 import type { FilmeResumo } from "@/lib/tmdb/tipos";
 
-export type AvaliacaoMotor = {
+export type ReacaoMotor = {
   tmdbId: number;
   titulo: string;
-  nota: 1 | 2 | 3 | 4 | 5;
-  /** Gêneros do filme avaliado, para o bônus de afinidade. */
+  reacao: Reacao;
+  /** Gêneros do filme, para o bônus de afinidade. */
   generos: number[];
 };
 
@@ -16,7 +17,8 @@ export type EntradaMotor = {
   data: Date;
   /** Cada "Gerar outras recomendações" soma 1. Padrão 0. */
   rodada?: number;
-  avaliacoes?: AvaliacaoMotor[];
+  /** Reações do usuário ("Não é pra mim", "Gostei", "Amei"). */
+  reacoes?: ReacaoMotor[];
   /** IDs do TMDB que nunca devem aparecer. */
   excluir?: number[];
 };
