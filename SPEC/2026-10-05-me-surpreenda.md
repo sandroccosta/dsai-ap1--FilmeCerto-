@@ -23,7 +23,7 @@ Os carrosséis respondem "o que combina comigo?". O "me surpreenda" responde "n�
 
 | Tema | Decisão |
 |---|---|
-| Lugar | Bloco "Me surpreenda" no dashboard, entre o topo e os carrosséis, no seu próprio `<Suspense>` |
+| Lugar | Bloco "Me surpreenda" no dashboard, no seu próprio `<Suspense>`; desde `SPEC/2026-10-06-interface.md`, fica depois da 2ª seção de recomendações (antes, ficava entre o topo e os carrosséis) |
 | Dados | `montarGlobo()` (server-only) faz 2 chamadas a `descobrirFilmes`, em paralelo, com cache de 6 h |
 | Aleatoriedade | `Math.random` (a cada carregamento e a cada clique), diferente das seções, que mudam uma vez por dia |
 | Sorteio | Entre os filmes do próprio globo, no navegador: a animação sempre para no filme do pop-up, sem esperar rede |
