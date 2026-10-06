@@ -12,6 +12,10 @@ import { idsNasListas } from "@/features/listas/consultas";
 import { obterPreferencias } from "@/features/preferencias/consultas";
 import { resumirPreferencias } from "@/features/preferencias/resumo";
 import { obterReacoes } from "@/features/reacoes/consultas";
+import {
+  EsqueletoSurpresa,
+  SurpresaDashboard,
+} from "@/features/surpresa/components/surpresa-dashboard";
 
 export const metadata: Metadata = { title: "Início" };
 
@@ -38,6 +42,13 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           Gerar outras recomendações
         </Link>
       </header>
+
+      <Suspense fallback={<EsqueletoSurpresa />}>
+        <SurpresaDashboard
+          preferencias={preferencias}
+          excluir={[...excluir, ...reacoes.map((reacao) => reacao.tmdbId)]}
+        />
+      </Suspense>
 
       {/* A chave por rodada mostra o esqueleto de novo a cada "Gerar outras recomendações". */}
       <Suspense key={rodada} fallback={<EsqueletoSecoes />}>

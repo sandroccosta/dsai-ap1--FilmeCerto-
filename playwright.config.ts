@@ -16,6 +16,9 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "on-first-retry",
+    // Sem animações por padrão: o globo do "Me surpreenda" girando em vários navegadores
+    // headless ao mesmo tempo consome a CPU. O teste da animação liga o movimento de volta.
+    reducedMotion: "reduce",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: [
@@ -40,6 +43,7 @@ export default defineConfig({
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: SUPABASE_LOCAL.publishableKey,
         TMDB_READ_TOKEN: "token-e2e",
         TMDB_API_URL: `http://127.0.0.1:${TMDB_FALSO_PORTA}/3`,
+        IMAGENS_SEM_OTIMIZACAO: "1",
       },
     },
   ],

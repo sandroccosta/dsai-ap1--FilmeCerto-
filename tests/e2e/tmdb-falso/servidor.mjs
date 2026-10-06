@@ -33,7 +33,8 @@ function filme(id, titulo, genero, posicao) {
     title: titulo,
     original_title: titulo,
     overview: `Sinopse de ${titulo}.`,
-    poster_path: null,
+    // Pôster só nos IDs pares: o globo do "Me surpreenda" descarta filmes sem pôster.
+    poster_path: id % 2 === 0 ? `/falso-${id}.jpg` : null,
     backdrop_path: null,
     genre_ids: [genero],
     release_date: `${2000 + (id % 25)}-01-01`,

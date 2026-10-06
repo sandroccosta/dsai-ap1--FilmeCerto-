@@ -15,6 +15,8 @@ jobs:
       TMDB_READ_TOKEN: token-ci
       # TMDB falso dos testes E2E (tests/e2e/tmdb-falso), subido pelo Playwright.
       TMDB_API_URL: http://127.0.0.1:4010/3
+      # Pôsteres falsos nos E2E: sem otimizador de imagens (ver next.config.ts).
+      IMAGENS_SEM_OTIMIZACAO: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
