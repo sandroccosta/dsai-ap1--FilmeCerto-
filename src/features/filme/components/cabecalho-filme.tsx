@@ -15,7 +15,7 @@ export function CabecalhoFilme({ filme, acoes }: { filme: FilmeDetalhes; acoes?:
   ].filter((item): item is string => item !== null);
 
   return (
-    <div className="relative isolate overflow-hidden rounded-xl">
+    <div className="border-border/60 bg-card relative isolate overflow-hidden rounded-2xl border">
       {fundo && (
         <Image src={fundo} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
       )}
@@ -34,7 +34,9 @@ export function CabecalhoFilme({ filme, acoes }: { filme: FilmeDetalhes; acoes?:
 
         <div className="flex flex-col gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{filme.titulo}</h1>
+            <h1 className="text-4xl leading-none tracking-tight text-balance sm:text-6xl">
+              {filme.titulo}
+            </h1>
             {filme.tituloOriginal && filme.tituloOriginal !== filme.titulo && (
               <p className="text-muted-foreground mt-1">{filme.tituloOriginal}</p>
             )}

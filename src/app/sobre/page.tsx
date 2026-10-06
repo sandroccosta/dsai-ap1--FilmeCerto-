@@ -11,7 +11,7 @@ export default function SobrePage() {
   return (
     <article className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-12">
       <header className="flex flex-col gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">Sobre o Filme Certo</h1>
+        <h1 className="text-4xl tracking-tight sm:text-5xl">Sobre o Filme Certo</h1>
         <p className="text-muted-foreground">
           O Filme Certo recomenda filmes a partir das suas preferências de gênero, duração e
           frequência, e aprende com as notas que você dá. Projeto acadêmico da disciplina de
@@ -20,11 +20,11 @@ export default function SobrePage() {
       </header>
 
       <section aria-labelledby="creditos" className="flex flex-col gap-4">
-        <h2 id="creditos" className="text-xl font-semibold">
+        <h2 id="creditos" className="text-2xl tracking-tight">
           Créditos e atribuições
         </h2>
 
-        <div className="border-border/60 flex flex-col gap-3 rounded-lg border p-4">
+        <div className="border-border bg-card flex flex-col gap-3 rounded-2xl border p-5">
           <a
             href={TMDB_URL}
             target="_blank"
@@ -39,7 +39,7 @@ export default function SobrePage() {
           </p>
         </div>
 
-        <div className="border-border/60 flex flex-col gap-2 rounded-lg border p-4">
+        <div className="border-border bg-card flex flex-col gap-2 rounded-2xl border p-5">
           <p>
             Os dados de onde assistir são fornecidos pela{" "}
             <a
@@ -52,6 +52,10 @@ export default function SobrePage() {
             </a>
             .
           </p>
+        </div>
+
+        <div className="border-border bg-card flex flex-col gap-2 rounded-2xl border p-5">
+          <p>Imagem da página inicial gerada por IA com o GPT-6 (OpenAI).</p>
         </div>
       </section>
     </article>

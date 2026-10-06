@@ -23,14 +23,14 @@ export function GrupoOpcoes<Valor extends string>({
 
   return (
     <div role="radiogroup" aria-labelledby={idRotulo} className="flex flex-col gap-3">
-      <h2 id={idRotulo} className="text-lg font-semibold">
+      <h2 id={idRotulo} className="text-xl tracking-tight">
         {rotulo}
       </h2>
       {opcoes.map((opcao) => (
         <label
           key={opcao}
           className={cn(
-            "border-border hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors",
+            "border-border hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3.5 transition-colors",
             "has-focus-visible:ring-ring/50 has-focus-visible:ring-3",
             valor === opcao && "border-primary bg-primary/10",
           )}

@@ -18,7 +18,8 @@ export async function entrar(page: Page, email: string, senha = SENHA_TESTE) {
 }
 
 export async function sair(page: Page) {
-  await page.getByRole("banner").getByRole("button", { name: "Sair" }).click();
+  await page.getByRole("banner").getByRole("button", { name: "Menu do usuário" }).click();
+  await page.getByRole("menuitem", { name: "Sair" }).click();
   await expect(page).toHaveURL("/");
 }
 

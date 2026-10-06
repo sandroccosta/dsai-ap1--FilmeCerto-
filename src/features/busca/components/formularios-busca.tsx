@@ -49,7 +49,7 @@ export function AbasBusca({ ativa }: { ativa: Modo }) {
 export function FormularioNome({ texto }: { texto: string }) {
   return (
     <form action="/busca" method="get" role="search" className="flex flex-wrap items-end gap-3">
-      <div className="flex min-w-60 flex-1 flex-col gap-2">
+      <div className="flex min-w-48 flex-1 flex-col gap-2">
         <Label htmlFor="busca-q">Nome do filme</Label>
         <Input id="busca-q" name="q" type="search" defaultValue={texto} className="h-10" />
       </div>
@@ -65,7 +65,7 @@ export function FormularioFiltros({ filtros }: { filtros: FiltrosBusca }) {
     <form
       action="/busca"
       method="get"
-      className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-5"
+      className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-1"
     >
       <input type="hidden" name="modo" value="filtros" />
       <div className="flex flex-col gap-2">

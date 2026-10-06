@@ -224,10 +224,10 @@ export function GloboSurpresa({ filmes: filmesIniciais }: { filmes: FilmeGlobo[]
   return (
     <section
       aria-labelledby="titulo-surpresa"
-      className="border-border/60 from-primary/10 via-background to-background flex flex-col items-center gap-6 overflow-hidden rounded-2xl border bg-gradient-to-b px-4 py-8"
+      className="border-border/60 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border bg-[radial-gradient(ellipse_at_50%_60%,color-mix(in_oklab,var(--primary)_16%,transparent),transparent_70%)] px-4 py-10"
     >
       <div className="text-center">
-        <h2 id="titulo-surpresa" className="text-2xl font-bold tracking-tight">
+        <h2 id="titulo-surpresa" className="text-3xl tracking-tight sm:text-4xl">
           Não sabe o que ver?
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -242,6 +242,8 @@ export function GloboSurpresa({ filmes: filmesIniciais }: { filmes: FilmeGlobo[]
           trocando && "opacity-0",
         )}
       >
+        {/* Base do palco, iluminada pela "luz do projetor". */}
+        <div className="border-primary/40 bg-primary/5 absolute -bottom-3 left-1/2 h-12 w-[min(92%,34rem)] -translate-x-1/2 rounded-[50%] border shadow-[0_0_56px_-12px_var(--primary)]" />
         <div
           ref={anel}
           data-testid="anel-globo"

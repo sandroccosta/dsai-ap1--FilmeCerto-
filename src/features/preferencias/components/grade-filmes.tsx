@@ -105,7 +105,7 @@ export function GradeFilmes({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-lg font-semibold">{titulo}</h2>
+        <h2 className="text-xl tracking-tight">{titulo}</h2>
         <p className="text-muted-foreground shrink-0 text-sm" aria-live="polite">
           {selecionados.length} de {MAX_FILMES_ONBOARDING}
         </p>

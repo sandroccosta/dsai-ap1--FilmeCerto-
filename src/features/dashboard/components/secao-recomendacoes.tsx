@@ -16,7 +16,7 @@ export function SecaoRecomendacoes({ secao, urlAtual }: Props) {
 
   return (
     <section aria-labelledby={idTitulo} className="flex flex-col gap-3">
-      <h2 id={idTitulo} className="text-xl font-semibold tracking-tight">
+      <h2 id={idTitulo} className="text-2xl tracking-tight">
         {secao.titulo}
       </h2>
       {secao.erro ? (

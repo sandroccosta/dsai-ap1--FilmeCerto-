@@ -18,9 +18,12 @@ export function Footer() {
           </a>
           <p>{TMDB_ATTRIBUTION}</p>
         </div>
-        <Link href="/sobre" className="hover:text-foreground transition-colors">
-          Créditos e atribuições
-        </Link>
+        <div className="flex flex-col gap-1 sm:items-end">
+          <p>Projeto acadêmico da UFPA, 2026</p>
+          <Link href="/sobre" className="hover:text-foreground transition-colors">
+            Créditos e atribuições
+          </Link>
+        </div>
       </div>
     </footer>
   );

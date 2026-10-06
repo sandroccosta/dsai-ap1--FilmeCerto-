@@ -60,3 +60,13 @@ test.describe("com animação", () => {
     expect(Date.now() - inicio).toBeGreaterThan(1000);
   });
 });
+
+test("o bloco fica depois da 2ª seção de recomendações", async ({ page }) => {
+  await cadastrar(page, "Yara Couto", emailAleatorio("e2e"));
+  await concluirOnboarding(page);
+
+  const main = page.getByRole("main");
+  await expect(main.getByRole("region", { name: "Não sabe o que ver?" })).toBeVisible();
+  const titulos = await main.getByRole("heading", { level: 2 }).allTextContents();
+  expect(titulos.indexOf("Não sabe o que ver?")).toBe(2);
+});

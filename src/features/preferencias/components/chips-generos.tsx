@@ -27,7 +27,7 @@ export function ChipsGeneros({
 
   return (
     <div role="group" aria-labelledby={idTitulo} className="flex flex-col gap-3">
-      <h2 id={idTitulo} className="text-lg font-semibold">
+      <h2 id={idTitulo} className="text-xl tracking-tight">
         {titulo}
       </h2>
       <p className="text-muted-foreground text-sm">{limiteAtingido ? avisoLimite : ajuda}</p>

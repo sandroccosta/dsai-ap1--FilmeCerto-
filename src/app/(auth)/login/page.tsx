@@ -11,7 +11,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
   return (
     <>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">Entrar</h1>
+      <h1 className="mb-1 text-3xl tracking-tight">Entrar</h1>
       <p className="text-muted-foreground mb-6 text-sm">Bom te ver de novo.</p>
       <LoginForm next={destino} />
     </>

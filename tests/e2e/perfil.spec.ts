@@ -7,7 +7,8 @@ test("trocar nome e preferências reflete no header e no dashboard", async ({ pa
   await cadastrar(page, "Tiago Lima", emailAleatorio("e2e"));
   await concluirOnboarding(page);
 
-  await page.getByRole("banner").getByRole("link", { name: "Tiago Lima" }).click();
+  await page.getByRole("banner").getByRole("button", { name: "Menu do usuário" }).click();
+  await page.getByRole("menuitem", { name: "Perfil" }).click();
   await expect(page).toHaveURL("/perfil");
   const main = page.getByRole("main");
 
@@ -15,7 +16,7 @@ test("trocar nome e preferências reflete no header e no dashboard", async ({ pa
   await dados.getByLabel("Nome").fill("Novo Nome");
   await dados.getByRole("button", { name: "Salvar nome" }).click();
   await expect(dados.getByRole("status")).toHaveText("Alterações salvas.");
-  await expect(page.getByRole("banner").getByRole("link", { name: "Novo Nome" })).toBeVisible();
+  await expect(page.getByRole("banner").getByText("Novo Nome")).toBeVisible();
 
   const preferencias = main.getByRole("region", { name: "Suas preferências" });
   const favoritos = preferencias.getByRole("group", { name: "Gêneros favoritos" });

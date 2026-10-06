@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/filme/[id]">): Pr
 function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold tracking-tight">{titulo}</h2>
+      <h2 className="text-2xl tracking-tight">{titulo}</h2>
       {children}
     </section>
   );
@@ -98,7 +98,7 @@ export default async function FilmePage({ params }: PageProps<"/filme/[id]">) {
 
       {filme.parecidos.length > 0 && (
         <section aria-labelledby="titulo-parecidos" className="flex flex-col gap-4">
-          <h2 id="titulo-parecidos" className="text-xl font-semibold tracking-tight">
+          <h2 id="titulo-parecidos" className="text-2xl tracking-tight">
             Filmes parecidos
           </h2>
           <Carrossel rotulo="Filmes parecidos">

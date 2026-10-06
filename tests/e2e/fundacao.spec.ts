@@ -2,10 +2,20 @@ import { expect, test } from "@playwright/test";
 
 const TMDB_ATTRIBUTION = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
 
-test("a página inicial mostra a marca", async ({ page }) => {
+test("a página inicial mostra o título e leva ao cadastro e ao sobre", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Filme Certo");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "O filme certo para hoje à noite",
+  );
   await expect(page).toHaveTitle("Filme Certo");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("link", { name: "Criar minha conta" })).toHaveAttribute(
+    "href",
+    "/cadastro",
+  );
+
+  await main.getByRole("link", { name: "Sobre o projeto" }).click();
+  await expect(page).toHaveURL("/sobre");
 });
 
 test("/sobre mostra a atribuição ao TMDB e a menção à JustWatch", async ({ page }) => {

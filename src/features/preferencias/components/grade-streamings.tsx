@@ -1,4 +1,5 @@
 import { cn } from "cn";
+import { CheckIcon } from "lucide-react";
 import Image from "next/image";
 
 import { STREAMINGS } from "@/features/preferencias/streamings";
@@ -14,7 +15,7 @@ type Props = {
 export function GradeStreamings({ titulo, selecionados, aoAlternar }: Props) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{titulo}</h2>
+      <h2 className="text-xl tracking-tight">{titulo}</h2>
       <p className="text-muted-foreground text-sm">
         Os filmes desses serviços ganham uma seção só deles.
       </p>
@@ -29,9 +30,9 @@ export function GradeStreamings({ titulo, selecionados, aoAlternar }: Props) {
               aria-pressed={marcado}
               onClick={() => aoAlternar(id)}
               className={cn(
-                "border-border flex items-center gap-3 rounded-lg border p-2 text-left text-sm transition-colors outline-none",
+                "border-border relative flex items-center gap-3 rounded-xl border p-2.5 text-left text-sm transition-colors outline-none",
                 "hover:bg-muted focus-visible:ring-ring/50 focus-visible:ring-3",
-                marcado && "border-primary bg-primary/15 hover:bg-primary/25",
+                marcado && "border-primary bg-primary/10 hover:bg-primary/15",
               )}
             >
               {logo && (
@@ -44,6 +45,11 @@ export function GradeStreamings({ titulo, selecionados, aoAlternar }: Props) {
                 />
               )}
               <span className="font-medium">{nome}</span>
+              {marcado && (
+                <span className="bg-primary text-primary-foreground absolute top-1.5 right-1.5 rounded-full p-0.5">
+                  <CheckIcon className="size-3" aria-hidden />
+                </span>
+              )}
             </button>
           );
         })}

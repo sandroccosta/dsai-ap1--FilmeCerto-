@@ -33,7 +33,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-10">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Olá, {usuario.nome}</h1>
+          <h1 className="text-4xl tracking-tight sm:text-5xl">Olá, {usuario.nome}</h1>
           <p className="text-muted-foreground" data-testid="resumo-preferencias">
             {resumirPreferencias(preferencias)}
           </p>
@@ -42,13 +42,6 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           Gerar outras recomendações
         </Link>
       </header>
-
-      <Suspense fallback={<EsqueletoSurpresa />}>
-        <SurpresaDashboard
-          preferencias={preferencias}
-          excluir={[...excluir, ...reacoes.map((reacao) => reacao.tmdbId)]}
-        />
-      </Suspense>
 
       {/* A chave por rodada mostra o esqueleto de novo a cada "Gerar outras recomendações". */}
       <Suspense key={rodada} fallback={<EsqueletoSecoes />}>
@@ -63,6 +56,14 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           }}
           urlAtual={urlAtual}
           proximaRodada={proximaRodada}
+          meio={
+            <Suspense fallback={<EsqueletoSurpresa />}>
+              <SurpresaDashboard
+                preferencias={preferencias}
+                excluir={[...excluir, ...reacoes.map((reacao) => reacao.tmdbId)]}
+              />
+            </Suspense>
+          }
         />
       </Suspense>
     </div>
