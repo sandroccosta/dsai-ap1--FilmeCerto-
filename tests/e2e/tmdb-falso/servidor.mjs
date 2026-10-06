@@ -62,13 +62,20 @@ const servidor = createServer((req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
 
   if (url.pathname === "/3/discover/movie") {
-    const generos = url.searchParams.get("with_genres") ?? "18";
+    // Sem with_genres, usa o primeiro gênero (na ordem de NOMES) que não está em without_genres.
+    const sem = (url.searchParams.get("without_genres") ?? "").split(",").filter(Boolean);
+    const padrao = Object.keys(NOMES).find((id) => !sem.includes(id)) ?? "18";
+    const generos = url.searchParams.get("with_genres") ?? padrao;
     if (generos === GENERO_QUE_FALHA) return responder(res, 503, { status_message: "Falha" });
     const genero = Number(generos.split(/[|,]/)[0]);
     const numero = Number(url.searchParams.get("page") ?? 1);
     const nome = NOMES[genero] ?? `Gênero ${genero}`;
+    // Com with_watch_providers, filmes só desta consulta ("Nos seus streamings").
+    const streaming = url.searchParams.has("with_watch_providers");
     const filmes = Array.from({ length: 20 }, (_, i) =>
-      filme(genero * 1000 + numero * 20 + i, `${nome} ${numero}-${i + 1}`, genero, i),
+      streaming
+        ? filme(800000 + numero * 20 + i, `No streaming ${numero}-${i + 1}`, genero, i)
+        : filme(genero * 1000 + numero * 20 + i, `${nome} ${numero}-${i + 1}`, genero, i),
     );
     return responder(res, 200, pagina(filmes, numero));
   }

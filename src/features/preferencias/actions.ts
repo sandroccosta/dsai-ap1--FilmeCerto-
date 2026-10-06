@@ -2,21 +2,29 @@
 
 import { redirect } from "next/navigation";
 
-import { preferenciasSchema } from "@/features/preferencias/schema";
+import { gravarOnboarding } from "@/features/preferencias/gravar";
+import { onboardingSchema } from "@/features/preferencias/schema";
 import { createClient } from "@/lib/supabase/server";
+import { obterFilme } from "@/lib/tmdb/filmes";
 
 export type EstadoPreferencias = { mensagem?: string };
 
 const ERRO_GENERICO = "Não foi possível salvar agora. Tente de novo.";
 
+const numeros = (formData: FormData, campo: string) => formData.getAll(campo).map(Number);
+
 export async function salvarPreferencias(
   _anterior: EstadoPreferencias,
   formData: FormData,
 ): Promise<EstadoPreferencias> {
-  const resultado = preferenciasSchema.safeParse({
-    generos: formData.getAll("generos").map(Number),
+  const resultado = onboardingSchema.safeParse({
+    generos: numeros(formData, "generos"),
+    generosEvitados: numeros(formData, "generosEvitados"),
     duracao: formData.get("duracao"),
     frequencia: formData.get("frequencia"),
+    streamings: numeros(formData, "streamings"),
+    amados: numeros(formData, "amados"),
+    rejeitados: numeros(formData, "rejeitados"),
   });
   if (!resultado.success) {
     return { mensagem: resultado.error.issues[0]?.message ?? ERRO_GENERICO };
@@ -28,11 +36,8 @@ export async function salvarPreferencias(
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=%2Fonboarding");
 
-  const { error } = await supabase
-    .from("preferencias")
-    .upsert({ usuario_id: user.id, ...resultado.data });
-  if (error) {
-    console.error("[preferencias] falha ao salvar:", error.code, error.message);
+  // Título e gêneros dos filmes vêm do TMDB no servidor, não do navegador.
+  if ((await gravarOnboarding(supabase, user.id, resultado.data, obterFilme)) === "erro") {
     return { mensagem: ERRO_GENERICO };
   }
 

@@ -5,6 +5,7 @@ import type { ReacaoMotor, EntradaMotor, Gerador } from "@/features/recomendacao
 import type { FiltrosDescoberta } from "@/lib/tmdb/tipos";
 
 export type Consulta =
+  | { tipo: "streamings"; filtros: FiltrosDescoberta }
   | { tipo: "para-voce"; filtros: FiltrosDescoberta }
   | { tipo: "parecidos"; origem: ReacaoMotor }
   | { tipo: "genero"; generoId: number; filtros: FiltrosDescoberta };
@@ -25,8 +26,11 @@ export function origensDeParecidos(reacoes: ReacaoMotor[] = []): ReacaoMotor[] {
 
 export function planejar({ preferencias, reacoes }: EntradaMotor, gerador: Gerador): Consulta[] {
   const perfil = PERFIS[preferencias.frequencia];
+  const evitados = preferencias.generosEvitados ?? [];
+  const streamings = preferencias.streamings ?? [];
   const base: FiltrosDescoberta = {
     ...filtrosDeDuracao(preferencias.duracao),
+    ...(evitados.length > 0 && { semGeneros: evitados }),
     votosMin: perfil.votosMin,
     notaMin: perfil.notaMin,
     ordem: "popularidade",
@@ -35,6 +39,16 @@ export function planejar({ preferencias, reacoes }: EntradaMotor, gerador: Gerad
   const primeira = sortearInteiro(gerador, 1, perfil.paginaMax);
   let segunda = sortearInteiro(gerador, 1, perfil.paginaMax - 1);
   if (segunda >= primeira) segunda += 1;
+
+  const nosStreamings: Consulta[] =
+    streamings.length > 0
+      ? [
+          {
+            tipo: "streamings",
+            filtros: { ...base, generos: preferencias.generos, provedores: streamings, pagina: 1 },
+          },
+        ]
+      : [];
 
   const paraVoce: Consulta[] =
     perfil.paginaMax > 1
@@ -60,5 +74,5 @@ export function planejar({ preferencias, reacoes }: EntradaMotor, gerador: Gerad
     }),
   );
 
-  return [...paraVoce, ...parecidos, ...porGenero];
+  return [...nosStreamings, ...paraVoce, ...parecidos, ...porGenero];
 }

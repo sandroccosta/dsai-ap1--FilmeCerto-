@@ -75,3 +75,67 @@ describe("RLS de preferencias", () => {
     expect(error?.code).toBe("23514");
   });
 });
+
+describe("gêneros evitados e streamings em preferencias", () => {
+  const base = { generos: [28, 18], duracao: "media" as const, frequencia: "semanal" as const };
+
+  it("sem os campos novos, a linha fica com listas vazias", async () => {
+    const { cliente, id } = await criarUsuario();
+    const { data, error } = await cliente
+      .from("preferencias")
+      .insert({ usuario_id: id, ...base })
+      .select("generos_evitados, streamings")
+      .single();
+    expect(error).toBeNull();
+    expect(data).toEqual({ generos_evitados: [], streamings: [] });
+  });
+
+  it("o usuário atualiza os próprios gêneros evitados e streamings", async () => {
+    const { cliente, id } = await criarUsuario();
+    await cliente.from("preferencias").insert({ usuario_id: id, ...base });
+
+    const { error } = await cliente
+      .from("preferencias")
+      .update({ generos_evitados: [27, 53], streamings: [8, 119] })
+      .eq("usuario_id", id);
+    expect(error).toBeNull();
+
+    const { data } = await cliente
+      .from("preferencias")
+      .select("generos_evitados, streamings")
+      .single();
+    expect(data).toEqual({ generos_evitados: [27, 53], streamings: [8, 119] });
+  });
+
+  it("o update de um usuário nos campos novos de outro não altera nada", async () => {
+    const dono = await criarUsuario();
+    const intruso = await criarUsuario();
+    await dono.cliente.from("preferencias").insert({ usuario_id: dono.id, ...base });
+
+    const { data } = await intruso.cliente
+      .from("preferencias")
+      .update({ generos_evitados: [27], streamings: [8] })
+      .eq("usuario_id", dono.id)
+      .select();
+    expect(data).toEqual([]);
+
+    const { data: doDono } = await dono.cliente
+      .from("preferencias")
+      .select("generos_evitados, streamings")
+      .single();
+    expect(doDono).toEqual({ generos_evitados: [], streamings: [] });
+  });
+
+  it.each([
+    ["igual a um favorito", { generos_evitados: [18] }],
+    ["com 6 gêneros evitados", { generos_evitados: [27, 53, 99, 37, 10752, 36] }],
+    ["com gênero evitado fora da lista", { generos_evitados: [1] }],
+    ["com 11 streamings", { streamings: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }],
+  ])("o banco recusa preferências %s", async (_caso, extras) => {
+    const { cliente, id } = await criarUsuario();
+    const { error } = await cliente
+      .from("preferencias")
+      .insert({ usuario_id: id, ...base, ...extras });
+    expect(error?.code).toBe("23514");
+  });
+});

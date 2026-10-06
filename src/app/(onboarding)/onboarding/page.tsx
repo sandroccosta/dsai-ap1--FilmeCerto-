@@ -16,7 +16,8 @@ export default async function OnboardingPage() {
       <div className="border-border/60 bg-card w-full max-w-2xl rounded-xl border p-6 shadow-sm sm:p-8">
         <h1 className="mb-1 text-2xl font-bold tracking-tight">Conte do que você gosta</h1>
         <p className="text-muted-foreground mb-6 text-sm">
-          {usuario.nome}, são só 3 perguntas para montar recomendações do seu jeito.
+          {usuario.nome}, são poucas perguntas para montar recomendações do seu jeito. Só as três
+          primeiras são obrigatórias.
         </p>
         <OnboardingWizard />
       </div>

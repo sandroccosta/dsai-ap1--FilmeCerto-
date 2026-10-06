@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { nomeSchema } from "@/features/auth/schema";
+import { paraLinha } from "@/features/preferencias/linha";
 import { preferenciasSchema } from "@/features/preferencias/schema";
 import { createClient } from "@/lib/supabase/server";
 
@@ -54,8 +55,10 @@ export async function atualizarPreferencias(
 ): Promise<EstadoPerfil> {
   const resultado = preferenciasSchema.safeParse({
     generos: formData.getAll("generos").map(Number),
+    generosEvitados: formData.getAll("generosEvitados").map(Number),
     duracao: formData.get("duracao"),
     frequencia: formData.get("frequencia"),
+    streamings: formData.getAll("streamings").map(Number),
   });
   if (!resultado.success) return { mensagem: resultado.error.issues[0]?.message ?? ERRO_GENERICO };
 
@@ -64,7 +67,7 @@ export async function atualizarPreferencias(
 
   const { error } = await supabase
     .from("preferencias")
-    .update(resultado.data)
+    .update(paraLinha(resultado.data))
     .eq("usuario_id", user.id);
   if (error) {
     console.error("[perfil] falha ao salvar preferências:", error.code, error.message);

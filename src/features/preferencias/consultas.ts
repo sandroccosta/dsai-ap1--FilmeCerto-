@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
+import { COLUNAS_PREFERENCIAS, deLinha } from "@/features/preferencias/linha";
 import type { PreferenciasInput } from "@/features/preferencias/schema";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,12 +11,12 @@ export const obterPreferencias = cache(async (): Promise<PreferenciasInput | nul
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("preferencias")
-    .select("generos, duracao, frequencia")
+    .select(COLUNAS_PREFERENCIAS)
     .maybeSingle();
 
   if (error) {
     console.error("[preferencias] falha ao ler:", error.code, error.message);
     throw new Error("Não foi possível carregar suas preferências.");
   }
-  return data;
+  return data && deLinha(data);
 });

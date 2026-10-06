@@ -35,8 +35,10 @@ function filme(id: number, sobrescrever: Partial<FilmeResumo> = {}): FilmeResumo
 
 const preferencias: PreferenciasInput = {
   generos: [18, 28],
+  generosEvitados: [],
   duracao: "media",
   frequencia: "semanal",
+  streamings: [],
 };
 
 /** TMDB falso: a consulta com semGeneros é a "fora da bolha". */
@@ -90,6 +92,24 @@ describe("montarGlobo", () => {
     expect(bolha?.generos).toHaveLength(3);
     for (const genero of bolha?.generos ?? []) expect([18, 28]).not.toContain(genero);
     expect(bolha).toMatchObject({ semGeneros: [18, 28], notaMin: 6.5, votosMin: 500 });
+  });
+
+  it("nunca busca gêneros evitados, nem no gosto nem fora da bolha", async () => {
+    for (let semente = 0; semente < 20; semente++) {
+      const { api, chamadas } = apiFalsa();
+      let estado = semente / 20;
+      await montarGlobo({
+        preferencias: { ...preferencias, generos: [18, 28], generosEvitados: [27, 53] },
+        api,
+        aleatorio: () => (estado = (estado * 9301 + 0.49297) % 1),
+      });
+
+      // A consulta do gosto é feita primeiro; a de fora da bolha, em seguida.
+      const [gosto, bolha] = chamadas;
+      expect(gosto).toMatchObject({ generos: [18, 28], semGeneros: [27, 53] });
+      expect(bolha?.semGeneros).toEqual([18, 28, 27, 53]);
+      for (const genero of bolha?.generos ?? []) expect([18, 28, 27, 53]).not.toContain(genero);
+    }
   });
 
   it("devolve até 6 de cada origem, sem excluídos, sem pôster ausente e sem repetidos", async () => {

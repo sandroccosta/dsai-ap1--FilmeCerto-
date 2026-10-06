@@ -60,6 +60,24 @@ describe("descobrirFilmes", () => {
     expect(chamada(fetchFalso).url.searchParams.get("primary_release_year")).toBe("2010");
   });
 
+  it("com provedores, busca só o que está por assinatura nesses streamings no Brasil", async () => {
+    const { api, fetchFalso } = montar(paginaTmdb([]));
+    await api.descobrirFilmes({ provedores: [8, 119] });
+    const { searchParams } = chamada(fetchFalso).url;
+    expect(searchParams.get("with_watch_providers")).toBe("8|119");
+    expect(searchParams.get("watch_region")).toBe("BR");
+    expect(searchParams.get("with_watch_monetization_types")).toBe("flatrate");
+  });
+
+  it("sem provedores, não filtra por streaming", async () => {
+    const { api, fetchFalso } = montar(paginaTmdb([]));
+    await api.descobrirFilmes({ provedores: [] });
+    const { searchParams } = chamada(fetchFalso).url;
+    expect(searchParams.has("with_watch_providers")).toBe(false);
+    expect(searchParams.has("watch_region")).toBe(false);
+    expect(searchParams.has("with_watch_monetization_types")).toBe(false);
+  });
+
   it("usa popularidade e página 1 por padrão", async () => {
     const { api, fetchFalso } = montar(paginaTmdb([]));
     await api.descobrirFilmes();

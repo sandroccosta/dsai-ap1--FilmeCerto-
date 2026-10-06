@@ -14,6 +14,8 @@ export type ApiMotor = Pick<ApiFilmes, "descobrirFilmes" | "recomendacoesDe">;
 
 const API_PADRAO: ApiMotor = { descobrirFilmes, recomendacoesDe };
 const MAX_POR_SECAO = 20;
+const TITULO_STREAMINGS = "Nos seus streamings";
+const MOTIVO_STREAMINGS = "Num dos seus streamings";
 
 type Resultado = { consulta: Consulta; filmes: FilmeResumo[] | null };
 
@@ -35,8 +37,9 @@ function semRepetidos(filmes: FilmeResumo[]): FilmeResumo[] {
 }
 
 /**
- * Monta as seções de recomendação: "Escolhidos para você", os parecidos com filmes
- * bem avaliados e uma por gênero favorito. Cada filme aparece numa única seção.
+ * Monta as seções de recomendação: "Nos seus streamings" (se a pessoa indicou algum),
+ * "Escolhidos para você", os parecidos com filmes bem avaliados e uma por gênero favorito.
+ * Cada filme aparece numa única seção, e nenhum tem gênero evitado.
  */
 export async function gerarRecomendacoes(
   entrada: EntradaMotor,
@@ -52,19 +55,33 @@ export async function gerarRecomendacoes(
   const usados = new Set<number>();
   const contexto = { favoritos: preferencias.generos, bonus: bonusPorGenero(reacoes), gerador };
 
-  function escolher(filmes: FilmeResumo[]): Recomendacao[] {
+  const evitados = new Set(preferencias.generosEvitados ?? []);
+  const temEvitado = (filme: FilmeResumo) => filme.generos.some((genero) => evitados.has(genero));
+
+  function escolher(filmes: FilmeResumo[], motivo?: string): Recomendacao[] {
     const livres = semRepetidos(filmes).filter((f) => !bloqueados.has(f.id) && !usados.has(f.id));
     const escolhidos = pontuar(livres, contexto)
       .slice(0, MAX_POR_SECAO)
       .map((filme) => ({
         ...filme,
-        motivo: motivoPorGeneros(filme.generos, preferencias.generos),
+        motivo: motivo ?? motivoPorGeneros(filme.generos, preferencias.generos),
       }));
     for (const filme of escolhidos) usados.add(filme.id);
     return escolhidos;
   }
 
   const secoes: Secao[] = [];
+
+  // Vem antes de "para você" para ficar com os filmes que a pessoa pode ver sem pagar a mais.
+  const streamings = resultados.find((r) => r.consulta.tipo === "streamings");
+  if (streamings) {
+    const base = { id: "streamings", titulo: TITULO_STREAMINGS };
+    secoes.push(
+      streamings.filmes === null
+        ? { ...base, filmes: [], erro: true }
+        : { ...base, filmes: escolher(streamings.filmes, MOTIVO_STREAMINGS) },
+    );
+  }
 
   const paraVoce = resultados.filter((r) => r.consulta.tipo === "para-voce");
   const filmesParaVoce = paraVoce.flatMap((r) => r.filmes ?? []);
@@ -80,7 +97,8 @@ export async function gerarRecomendacoes(
 
   const listasParecidos = resultados.flatMap((r) =>
     r.consulta.tipo === "parecidos" && r.filmes
-      ? [{ origem: r.consulta.origem, filmes: r.filmes }]
+      ? // O /recommendations do TMDB não aceita without_genres: os evitados saem aqui.
+        [{ origem: r.consulta.origem, filmes: r.filmes.filter((filme) => !temEvitado(filme)) }]
       : [],
   );
   const jaUsados = new Set([...bloqueados, ...usados]);

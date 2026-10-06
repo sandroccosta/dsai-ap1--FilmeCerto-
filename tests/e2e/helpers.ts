@@ -22,18 +22,32 @@ export async function sair(page: Page) {
   await expect(page).toHaveURL("/");
 }
 
-/** Conclui o wizard com Ação + Drama, filmes médios, toda semana. */
-export async function concluirOnboarding(page: Page) {
+/**
+ * Conclui o wizard com os gêneros dados (padrão: Ação + Drama), filmes médios e toda semana,
+ * pulando os passos opcionais (gêneros evitados, streamings e filmes).
+ */
+export async function concluirOnboarding(page: Page, generos = ["Ação", "Drama"]) {
   await expect(page).toHaveURL("/onboarding");
   const main = page.getByRole("main");
-  await main.getByRole("button", { name: "Ação", exact: true }).click();
-  await main.getByRole("button", { name: "Drama", exact: true }).click();
+  for (const genero of generos) {
+    await main.getByRole("button", { name: genero, exact: true }).click();
+  }
   await main.getByRole("button", { name: "Próximo" }).click();
+  await main.getByRole("button", { name: "Pular" }).click();
   await main.getByRole("radio", { name: "Médios (90 a 120 min)" }).check();
   await main.getByRole("button", { name: "Próximo" }).click();
   await main.getByRole("radio", { name: "Toda semana" }).check();
+  await main.getByRole("button", { name: "Próximo" }).click();
+  await main.getByRole("button", { name: "Pular" }).click();
+  await main.getByRole("button", { name: "Pular" }).click();
   await main.getByRole("button", { name: "Concluir" }).click();
-  await expect(page).toHaveURL("/dashboard");
+  // Salvar espera as sugestões dos passos 6 e 7 (as Server Actions rodam uma por vez) e o dashboard.
+  await expect(page).toHaveURL("/dashboard", { timeout: 15_000 });
+}
+
+/** Títulos das seções do dashboard, na ordem da página. */
+export async function titulosDasSecoes(page: Page) {
+  return page.getByRole("main").locator("section > h2").allTextContents();
 }
 
 export const RESUMO_ONBOARDING = "Ação, Drama · Médios (90 a 120 min) · Toda semana";

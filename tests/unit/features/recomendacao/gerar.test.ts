@@ -15,9 +15,18 @@ const pagina = (itens: ReturnType<typeof filme>[]): Pagina<ReturnType<typeof fil
 });
 
 /** TMDB falso: "para você" devolve 30 filmes de drama/terror; cada gênero, 25 do próprio gênero. */
-function apiFalsa(falharGenero?: number): ApiMotor {
+function apiFalsa(falharGenero?: number, { falharStreamings = false } = {}): ApiMotor {
   return {
     descobrirFilmes: vi.fn(async (filtros: FiltrosDescoberta = {}) => {
+      if (filtros.provedores?.length) {
+        if (falharStreamings) throw new TmdbErro("TMDB respondeu 503", 503);
+        // Os 10 primeiros de "para você" (página 1) mais 10 só desta consulta.
+        return pagina(
+          Array.from({ length: 20 }, (_, i) =>
+            filme(i < 10 ? 1000 + i : 9000 + i, { generos: [18], popularidade: 100 - i }),
+          ),
+        );
+      }
       const generos = filtros.generos ?? [];
       if (generos.length > 1) {
         const base = (filtros.pagina ?? 1) * 1000;
@@ -117,5 +126,62 @@ describe("gerarRecomendacoes", () => {
     expect(await gerarRecomendacoes(entrada, apiFalsa())).toEqual(
       await gerarRecomendacoes(entrada, apiFalsa()),
     );
+  });
+
+  it("com streamings, 'Nos seus streamings' vem primeiro e fica com os filmes que estão nela", async () => {
+    const secoes = await gerarRecomendacoes(
+      { ...entrada, preferencias: { ...entrada.preferencias, streamings: [8] } },
+      apiFalsa(),
+    );
+
+    expect(secoes.map((s) => s.id).slice(0, 2)).toEqual(["streamings", "para-voce"]);
+    const [streamings, paraVoce] = secoes;
+    expect(streamings?.titulo).toBe("Nos seus streamings");
+    expect(streamings?.filmes).toHaveLength(20);
+    for (const f of streamings?.filmes ?? []) expect(f.motivo).toBe("Num dos seus streamings");
+
+    const idsStreamings = streamings?.filmes.map((f) => f.id) ?? [];
+    expect(idsStreamings).toEqual(expect.arrayContaining([1000, 1001, 1009, 9010]));
+    for (const id of idsStreamings) expect(paraVoce?.filmes.map((f) => f.id)).not.toContain(id);
+  });
+
+  it("sem streamings não há a seção 'Nos seus streamings'", async () => {
+    const secoes = await gerarRecomendacoes(entrada, apiFalsa());
+    expect(secoes.some((s) => s.id === "streamings")).toBe(false);
+  });
+
+  it("se a consulta de streamings falha, a seção vem primeiro com erro", async () => {
+    const erro = vi.spyOn(console, "error").mockImplementation(() => {});
+    const secoes = await gerarRecomendacoes(
+      { ...entrada, preferencias: { ...entrada.preferencias, streamings: [8] } },
+      apiFalsa(undefined, { falharStreamings: true }),
+    );
+    erro.mockRestore();
+
+    expect(secoes[0]).toEqual({
+      id: "streamings",
+      titulo: "Nos seus streamings",
+      filmes: [],
+      erro: true,
+    });
+    expect(secoes[1]?.id).toBe("para-voce");
+  });
+
+  it("descarta dos parecidos os filmes com gênero evitado", async () => {
+    const api = apiFalsa();
+    api.recomendacoesDe = vi.fn(async () =>
+      pagina([filme(701, { generos: [10752, 18] }), filme(702, { generos: [18] })]),
+    );
+    const secoes = await gerarRecomendacoes(
+      {
+        ...entrada,
+        preferencias: { ...entrada.preferencias, generosEvitados: [10752] },
+        reacoes: [{ tmdbId: 700, titulo: "Interestelar", reacao: "amei", generos: [878] }],
+      },
+      api,
+    );
+
+    const parecidos = secoes.find((s) => s.id === "parecidos-700");
+    expect(parecidos?.filmes.map((f) => f.id)).toEqual([702]);
   });
 });

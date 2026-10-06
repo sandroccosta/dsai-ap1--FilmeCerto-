@@ -59,7 +59,7 @@ async function consultar(api: ApiGlobo, filtros: Filtros): Promise<FilmeResumo[]
 
 /**
  * Até 6 filmes do gosto da pessoa (de páginas que os carrosséis não usam) e até 6
- * de gêneros que ela não escolheu, bem avaliados. Lista vazia se sobrarem menos de 3.
+ * de gêneros que ela não escolheu nem evita, bem avaliados. Lista vazia se sobrarem menos de 3.
  */
 export async function montarGlobo({
   preferencias,
@@ -69,14 +69,16 @@ export async function montarGlobo({
 }: Entrada): Promise<FilmeGlobo[]> {
   const perfil = PERFIS[preferencias.frequencia];
   const favoritos = preferencias.generos;
+  const evitados = preferencias.generosEvitados;
   const generosBolha = embaralhar(
-    GENEROS.map(({ id }) => id).filter((id) => !favoritos.includes(id)),
+    GENEROS.map(({ id }) => id).filter((id) => !favoritos.includes(id) && !evitados.includes(id)),
     aleatorio,
   ).slice(0, GENEROS_BOLHA);
 
   const [doGosto, daBolha] = await Promise.all([
     consultar(api, {
       generos: favoritos,
+      ...(evitados.length > 0 && { semGeneros: evitados }),
       ...filtrosDeDuracao(preferencias.duracao),
       votosMin: perfil.votosMin,
       notaMin: perfil.notaMin,
@@ -85,7 +87,7 @@ export async function montarGlobo({
     }),
     consultar(api, {
       generos: generosBolha,
-      semGeneros: favoritos,
+      semGeneros: [...favoritos, ...evitados],
       notaMin: BOLHA.notaMin,
       votosMin: BOLHA.votosMin,
       ordem: "popularidade",

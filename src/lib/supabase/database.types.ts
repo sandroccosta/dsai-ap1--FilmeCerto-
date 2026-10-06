@@ -67,6 +67,8 @@ export type Database = {
           duracao: Database["public"]["Enums"]["duracao_preferida"];
           frequencia: Database["public"]["Enums"]["frequencia_assistir"];
           generos: number[];
+          generos_evitados: number[];
+          streamings: number[];
           usuario_id: string;
         };
         Insert: {
@@ -75,6 +77,8 @@ export type Database = {
           duracao: Database["public"]["Enums"]["duracao_preferida"];
           frequencia: Database["public"]["Enums"]["frequencia_assistir"];
           generos: number[];
+          generos_evitados?: number[];
+          streamings?: number[];
           usuario_id: string;
         };
         Update: {
@@ -83,6 +87,8 @@ export type Database = {
           duracao?: Database["public"]["Enums"]["duracao_preferida"];
           frequencia?: Database["public"]["Enums"]["frequencia_assistir"];
           generos?: number[];
+          generos_evitados?: number[];
+          streamings?: number[];
           usuario_id?: string;
         };
         Relationships: [];

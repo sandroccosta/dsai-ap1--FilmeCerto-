@@ -46,15 +46,8 @@ test("'Gerar outras recomendações' avança a rodada e troca os filmes", async 
 test("uma seção que falha mostra o erro e as outras carregam", async ({ page }) => {
   await cadastrar(page, "Kátia Moura", emailAleatorio("e2e"));
   await expect(page).toHaveURL("/onboarding");
+  await concluirOnboarding(page, ["Documentário", "Drama"]);
   const main = page.getByRole("main");
-  await main.getByRole("button", { name: "Documentário", exact: true }).click();
-  await main.getByRole("button", { name: "Drama", exact: true }).click();
-  await main.getByRole("button", { name: "Próximo" }).click();
-  await main.getByRole("radio", { name: "Tanto faz" }).check();
-  await main.getByRole("button", { name: "Próximo" }).click();
-  await main.getByRole("radio", { name: "Toda semana" }).check();
-  await main.getByRole("button", { name: "Concluir" }).click();
-  await expect(page).toHaveURL("/dashboard");
 
   const documentario = main.getByRole("region", { name: "Documentário para você" });
   await expect(documentario.getByText("Não foi possível carregar agora.")).toBeVisible();

@@ -11,7 +11,15 @@ export type ReacaoMotor = {
 };
 
 export type EntradaMotor = {
-  preferencias: { generos: number[]; duracao: Duracao; frequencia: Frequencia };
+  preferencias: {
+    generos: number[];
+    /** Gêneros que nunca devem aparecer. Padrão: nenhum. */
+    generosEvitados?: number[];
+    duracao: Duracao;
+    frequencia: Frequencia;
+    /** Provedores do TMDB que a pessoa assina. Padrão: nenhum. */
+    streamings?: number[];
+  };
   usuarioId: string;
   /** "Hoje"; o dia é contado no fuso America/Sao_Paulo. */
   data: Date;
@@ -26,7 +34,7 @@ export type EntradaMotor = {
 export type Recomendacao = FilmeResumo & { motivo: string; pontuacao: number };
 
 export type Secao = {
-  /** "para-voce", "parecidos-{tmdbId}" ou "genero-{id}". */
+  /** "streamings", "para-voce", "parecidos-{tmdbId}" ou "genero-{id}". */
   id: string;
   titulo: string;
   filmes: Recomendacao[];

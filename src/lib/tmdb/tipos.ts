@@ -49,6 +49,8 @@ export type FiltrosDescoberta = {
   /** Qualquer um destes gêneros. */
   generos?: number[];
   semGeneros?: number[];
+  /** Disponível por assinatura em algum destes provedores (watch_region=BR). */
+  provedores?: number[];
   duracaoMin?: number;
   duracaoMax?: number;
   notaMin?: number;

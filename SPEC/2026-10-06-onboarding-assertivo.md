@@ -83,16 +83,16 @@ As políticas de RLS de `preferencias` e `reacoes` não mudam.
 | ID (TMDB) | Nome |
 |---|---|
 | 8 | Netflix |
-| 119 | Prime Video |
-| 337 | Disney+ |
-| 1899 | Max |
+| 119 | Amazon Prime Video |
+| 337 | Disney Plus |
+| 1899 | HBO Max |
 | 307 | Globoplay |
-| 350 | Apple TV+ |
-| 531 | Paramount+ |
+| 350 | Apple TV |
+| 531 | Paramount Plus |
 | 283 | Crunchyroll |
 | 11 | MUBI |
 
-Se o teste contra o TMDB apontar outro nome ou outro ID para algum serviço (por exemplo, uma troca de marca), vale o que o TMDB diz e a tabela acima é corrigida. O limite de 10 do banco deixa folga para crescer a lista.
+Os nomes são os do TMDB em 2026-10-06 (conferidos na implementação). Se o teste contra o TMDB apontar outro nome, ID ou logo para algum serviço (por exemplo, uma troca de marca), vale o que o TMDB diz e a tabela acima é corrigida. O limite de 10 do banco deixa folga para crescer a lista.
 
 ### Schema
 
@@ -146,13 +146,14 @@ Regras gerais (o que não está aqui continua como na spec `onboarding-preferenc
 
 - Subtítulo: "Só pelo pôster mesmo. Isso ajuda a saber o que não te mostrar."
 - **Grade:** 20 pôsteres de `sugerirFilmesOnboarding({ semGeneros: [...favoritos, ...evitados], excluir: amados })`, que chama `descobrirFilmes` sem os gêneros favoritos e evitados, `votosMin: 1000`, ordem por popularidade, página 1. Os filmes marcados no passo 6 nunca aparecem.
-- Sem busca.
+- Sem busca. No lugar dela, um botão **"Mostrar outros filmes"** abaixo da grade troca os pôsteres pela página seguinte do TMDB (com os mesmos filtros), da 1 à 5 e de volta à 1. Enquanto a página carrega, o botão fica desabilitado. Os filmes já marcados continuam marcados e na faixa de marcados, mesmo saindo da grade.
 - Mesmos botões, contador "N de 5" e limite do passo 6.
 
 **Falhas do TMDB nos passos 6 e 7:**
 
 - A grade mostra "Não foi possível carregar os filmes." e um botão "Tentar de novo".
 - "Pular" e "Concluir" continuam funcionando, para o cadastro não travar.
+- `sugerirFilmesOnboarding` aceita `pagina` de 1 a 5 (padrão 1) e recusa outros valores.
 - `sugerirFilmesOnboarding` e `buscarFilmesOnboarding` exigem sessão e devolvem `{ filmes }` ou `{ erro: true }`, sem lançar exceção.
 
 ### Gravação (`salvarPreferencias`)
@@ -181,7 +182,7 @@ Se o passo 3 der certo e o 4 falhar, as reações ficam gravadas. Isso é aceit�
 
 ### Me surpreenda
 
-O globo passa a usar `semGeneros: [...favoritos, ...generosEvitados]`, em vez de só os favoritos.
+A consulta de fora da bolha passa a usar `semGeneros: [...favoritos, ...generosEvitados]`, em vez de só os favoritos, e não sorteia gêneros evitados. A consulta do gosto também leva `semGeneros` com os evitados.
 
 ### Perfil (`/perfil`)
 
@@ -204,6 +205,7 @@ O resumo das preferências não muda. Gêneros evitados e streamings não entram
    - voltar ao passo 1 e marcar como favorito um gênero evitado tira esse gênero dos evitados;
    - no passo 6, com 5 filmes marcados os outros pôsteres ficam desabilitados e o contador mostra "5 de 5"; um filme marcado continua marcado depois de buscar e limpar a busca;
    - o passo 7 não mostra os filmes marcados no passo 6;
+   - no passo 7, "Mostrar outros filmes" pede a página seguinte, volta à 1 depois da 5 e mantém os filmes marcados; o passo 6 não tem esse botão;
    - com falha nas sugestões, aparece "Não foi possível carregar os filmes." e "Pular" continua habilitado;
    - o schema recusa: gênero evitado igual a favorito, 6 evitados, streaming fora da lista, 6 amados, um filme ao mesmo tempo em amados e rejeitados;
    - `planejar`:
@@ -212,12 +214,12 @@ O resumo das preferências não muda. Gêneros evitados e streamings não entram
    - `gerarRecomendacoes`:
      - põe "Nos seus streamings" como primeira seção, com o motivo "Num dos seus streamings";
      - descarta dos parecidos os filmes com gênero evitado;
-   - o globo do "Me surpreenda" pede `semGeneros` com favoritos e evitados.
+   - o globo do "Me surpreenda" não busca gêneros evitados em nenhuma das duas consultas;
+   - `descobrirFilmes` com `provedores: [8, 119]` envia `with_watch_providers=8|119`, `watch_region=BR` e `with_watch_monetization_types=flatrate`, e sem provedores não envia nenhum dos três (cliente com `fetch` falso, como os demais testes do cliente).
 2. **Testes de integração** (`pnpm test:integration`) passam, provando que:
    - a migration aplica no banco existente (`supabase migration up`) e as linhas antigas de `preferencias` ficam com `generos_evitados = '{}'` e `streamings = '{}'`;
    - o banco recusa: evitado igual a favorito, 6 evitados, gênero evitado fora da lista, 11 streamings;
    - o usuário atualiza os próprios `generos_evitados` e `streamings`, e não os de outro usuário;
-   - `descobrirFilmes` com `provedores: [8, 119]` envia `with_watch_providers=8|119`, `watch_region=BR` e `with_watch_monetization_types=flatrate`;
    - a lista de streamings bate com o TMDB (só com token real; senão o teste é pulado).
 3. **Testes E2E** (`pnpm test:e2e`, TMDB falso, que ganha suporte a `with_watch_providers` e `without_genres`) passam:
    - um cadastro novo que marca Ação, evita Terror, marca Netflix, ama 2 filmes e rejeita 1 cai no dashboard. A primeira seção é "Nos seus streamings", há uma seção "Porque você amou <título>" e nenhum filme de Terror aparece;

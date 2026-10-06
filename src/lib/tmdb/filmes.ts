@@ -115,7 +115,11 @@ function paraDetalhes(filme: DetalhesTmdb): FilmeDetalhes {
 export function criarApiFilmes(cliente: ClienteTmdb) {
   return {
     async descobrirFilmes(filtros: FiltrosDescoberta = {}): Promise<Pagina<FilmeResumo>> {
+      const provedores = filtros.provedores?.length ? filtros.provedores.join("|") : undefined;
       const parametros: Parametros = {
+        with_watch_providers: provedores,
+        watch_region: provedores && "BR",
+        with_watch_monetization_types: provedores && "flatrate",
         with_genres: filtros.generos?.length ? filtros.generos.join("|") : undefined,
         without_genres: filtros.semGeneros?.length ? filtros.semGeneros.join(",") : undefined,
         "with_runtime.gte": filtros.duracaoMin,

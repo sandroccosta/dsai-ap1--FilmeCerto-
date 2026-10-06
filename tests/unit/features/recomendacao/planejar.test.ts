@@ -80,4 +80,65 @@ describe("planejar", () => {
     const plano = planejar(entrada(), criarGerador("u1", new Date(), 0));
     expect(plano.some((c) => c.tipo === "parecidos")).toBe(false);
   });
+
+  it("com gêneros evitados, todas as consultas ao discover levam semGeneros", () => {
+    const plano = planejar(
+      entrada({
+        preferencias: {
+          generos: [18, 28],
+          generosEvitados: [27, 10752],
+          duracao: "media",
+          frequencia: "semanal",
+          streamings: [8],
+        },
+      }),
+      criarGerador("u1", new Date(), 0),
+    );
+    const descobertas = plano.filter((c) => c.tipo !== "parecidos");
+    expect(descobertas.length).toBeGreaterThan(0);
+    for (const consulta of descobertas) {
+      expect(consulta.filtros.semGeneros).toEqual([27, 10752]);
+    }
+  });
+
+  it("sem gêneros evitados, nenhuma consulta leva semGeneros", () => {
+    const plano = planejar(entrada(), criarGerador("u1", new Date(), 0));
+    for (const consulta of plano) {
+      if (consulta.tipo !== "parecidos") expect(consulta.filtros.semGeneros).toBeUndefined();
+    }
+  });
+
+  it("com streamings, a primeira consulta busca nos provedores com os gêneros favoritos", () => {
+    const plano = planejar(
+      entrada({
+        preferencias: {
+          generos: [18, 28],
+          duracao: "media",
+          frequencia: "semanal",
+          streamings: [8, 119],
+        },
+      }),
+      criarGerador("u1", new Date(), 0),
+    );
+    const streamings = plano.filter((c) => c.tipo === "streamings");
+    expect(streamings).toHaveLength(1);
+    expect(plano[0]).toEqual({
+      tipo: "streamings",
+      filtros: {
+        generos: [18, 28],
+        provedores: [8, 119],
+        duracaoMin: 90,
+        duracaoMax: 120,
+        votosMin: 300,
+        notaMin: 6.5,
+        ordem: "popularidade",
+        pagina: 1,
+      },
+    });
+  });
+
+  it("sem streamings não há consulta de streamings", () => {
+    const plano = planejar(entrada(), criarGerador("u1", new Date(), 0));
+    expect(plano.some((c) => c.tipo === "streamings")).toBe(false);
+  });
 });

@@ -1,4 +1,5 @@
 import { cn } from "cn";
+import { useId } from "react";
 
 import { GENEROS, MAX_GENEROS } from "@/features/preferencias/generos";
 
@@ -6,22 +7,32 @@ type Props = {
   titulo: string;
   selecionados: number[];
   aoAlternar: (id: number) => void;
+  /** Gêneros que não aparecem (ex.: os favoritos, na lista de evitados). */
+  ocultos?: number[];
+  ajuda?: string;
+  avisoLimite?: string;
 };
 
 /** Os 19 gêneros como botões de alternância, com limite de 5. Usado no onboarding e no perfil. */
-export function ChipsGeneros({ titulo, selecionados, aoAlternar }: Props) {
+export function ChipsGeneros({
+  titulo,
+  selecionados,
+  aoAlternar,
+  ocultos = [],
+  ajuda = "Escolha de 1 a 5. Eles guiam suas recomendações.",
+  avisoLimite = "Você pode escolher até 5 gêneros.",
+}: Props) {
   const limiteAtingido = selecionados.length >= MAX_GENEROS;
+  const idTitulo = useId();
 
   return (
-    <div className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{titulo}</h2>
-      <p className="text-muted-foreground text-sm">
-        {limiteAtingido
-          ? "Você pode escolher até 5 gêneros."
-          : "Escolha de 1 a 5. Eles guiam suas recomendações."}
-      </p>
+    <div role="group" aria-labelledby={idTitulo} className="flex flex-col gap-3">
+      <h2 id={idTitulo} className="text-lg font-semibold">
+        {titulo}
+      </h2>
+      <p className="text-muted-foreground text-sm">{limiteAtingido ? avisoLimite : ajuda}</p>
       <div className="flex flex-wrap gap-2">
-        {GENEROS.map(({ id, nome }) => {
+        {GENEROS.filter(({ id }) => !ocultos.includes(id)).map(({ id, nome }) => {
           const marcado = selecionados.includes(id);
           return (
             <button
