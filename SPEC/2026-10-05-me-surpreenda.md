@@ -4,6 +4,7 @@
 - **Componente:** me-surpreenda
 - **Status:** aprovada para implementação
 - **Substitui:** a spec planejada `extras` (só o "me surpreenda" foi mantido; ver "Fora do escopo")
+- **Ajustada em:** 2026-10-05: giro de 1,8 s também com movimento reduzido (mais suave), reserva para gostos de nicho e "Variedade" (sem repetição, renovação a cada 2 min e memória de 24 h)
 
 ## O quê
 
@@ -27,7 +28,7 @@ Os carrosséis respondem "o que combina comigo?". O "me surpreenda" responde "n�
 | Aleatoriedade | `Math.random` (a cada carregamento e a cada clique), diferente das seções, que mudam uma vez por dia |
 | Sorteio | Entre os filmes do próprio globo, no navegador: a animação sempre para no filme do pop-up, sem esperar rede |
 | Animação | CSS 3D (`perspective`, `rotateY`, `translateZ`); `transition` com desaceleração no giro |
-| Movimento reduzido | Com `prefers-reduced-motion: reduce`, o globo não gira (nem parado nem no sorteio) e o pop-up abre direto |
+| Movimento reduzido | Com `prefers-reduced-motion: reduce`, o globo não gira em repouso; o giro do sorteio (iniciado por um clique) continua, mais suave: 1 volta em vez de 3 |
 | Pop-up | `<dialog>` nativo com `showModal()`: foco preso, fecha com Esc, rótulo pelo título do filme |
 | Falha | Se as duas consultas falharem, ou sobrarem menos de 3 filmes, o bloco não aparece; o resto do dashboard segue normal |
 
@@ -42,7 +43,8 @@ Entrada: preferências, `excluir` (reações e listas, como no dashboard), `api`
 5. Motivo de cada filme:
    - do seu gosto: o mesmo de `motivoPorGeneros` ("Porque você curte Drama");
    - fora da bolha: "Fora da sua bolha: {Gênero} bem avaliado", com o primeiro gênero do filme (na ordem de `GENEROS`) que esteja entre os 3 sorteados.
-6. Se uma das consultas falhar, usa só a outra. Se sobrarem menos de 3 filmes, devolve lista vazia (o bloco não aparece).
+6. **Reserva para gostos de nicho:** se a página sorteada de uma consulta vier vazia (o TMDB tem poucas páginas para aquele filtro), repete a consulta na página 1 ordenada por `nota` (os carrosséis usam `popularidade`, então ainda são filmes diferentes).
+7. Se uma das consultas falhar, usa só a outra. Se sobrarem menos de 3 filmes, devolve lista vazia (o bloco não aparece).
 
 Saída: `FilmeGlobo[]`, com `id`, `titulo`, `ano`, `nota`, `sinopse`, `posterPath`, `motivo` e `origem` (`"gosto"` ou `"bolha"`).
 
@@ -53,7 +55,7 @@ Saída: `FilmeGlobo[]`, com `id`, `titulo`, `ano`, `nota`, `sinopse`, `posterPat
 - Os pôsteres do globo são decorativos (`aria-hidden="true"`); a interação acessível é o botão e o pop-up.
 - **Botão "Me surpreenda"** (ícone `Shuffle`):
   1. sorteia o índice `k`;
-  2. gira o anel até o ângulo que deixa o item `k` de frente, somando 3 voltas completas, com `transition` de ~2,6 s e curva de desaceleração;
+  2. gira o anel até o ângulo que deixa o item `k` de frente, somando 3 voltas completas (1 com movimento reduzido), com `transition` de 1,8 s e curva de desaceleração;
   3. ao fim da transição (`transitionend`, com um tempo-limite de segurança), abre o pop-up;
   4. durante o giro, o botão fica desabilitado e mostra "Sorteando…".
 - **Pop-up** (`<dialog>`, `aria-labelledby` no título):
@@ -62,13 +64,21 @@ Saída: `FilmeGlobo[]`, com `id`, `titulo`, `ano`, `nota`, `sinopse`, `posterPat
   - **"Sortear outro"**: fecha o pop-up e gira de novo;
   - **"Fechar"** (botão com ícone ✕ e `aria-label`) e a tecla Esc fecham.
 
+### Variedade: sem repetir filmes
+
+- **Sem repetição na sessão:** o sorteio só escolhe filmes do globo que ainda não saíram. Quando todos já saíram, o globo pede um lote novo antes de girar.
+- **Renovação a cada 2 minutos:** com a aba visível, sem pop-up aberto e sem giro em andamento, o globo troca os pôsteres por um lote novo, com transição de opacidade. Se a aba está em segundo plano, a renovação espera.
+- **Memória de 24 h:** os IDs sorteados ficam no `localStorage` (`filme-certo:surpresa-vistos`, lista de `{ id, em }`, no máximo 200, entradas com mais de 24 h descartadas). Todo acesso fica em `try/catch`: sem `localStorage`, só vale a regra da sessão.
+- **Lote novo:** Server Action `novoGlobo(jaVistos)` em `src/features/surpresa/actions.ts`. Ela aceita no máximo 200 IDs (inteiros positivos; o resto é descartado), lê preferências, reações e listas do usuário logado e chama `montarGlobo` excluindo tudo isso mais os `jaVistos`. Sem sessão ou sem preferências, devolve lista vazia. Se a renovação falhar ou vier com menos de 3 filmes, o globo atual continua.
+- Ao montar, o globo também descarta da escolha os filmes que já estão na memória; se sobrarem menos de 3, pede um lote novo.
+
 ### Dashboard
 
 `src/app/(app)/dashboard/page.tsx` ganha o bloco, num `<Suspense>` próprio (fallback: um círculo em esqueleto), antes das seções. O `excluir` usado é o mesmo das seções (reações e listas).
 
 ### TMDB falso
 
-Nada novo: o `discover` do servidor falso já responde por gênero e página (filmes sem pôster). Para o globo ter pôsteres nos testes E2E, o servidor falso passa a devolver `poster_path` `"/falso-{id}.jpg"` para filmes cujo ID termine em número par; os de ID ímpar continuam sem pôster, exercitando o filtro. As imagens quebram nos testes (não há CDN), o que não afeta os testes.
+Nada novo: o `discover` do servidor falso já responde por gênero e página (filmes sem pôster). Para o globo ter pôsteres nos testes E2E, o servidor falso passa a devolver `poster_path` `"/falso-{id}.jpg"` para filmes cujo ID termine em número par; os de ID ímpar continuam sem pôster, exercitando o filtro. As imagens quebram nos testes (não há CDN), o que não afeta os testes. Para o servidor não ficar preso tentando otimizar essas imagens inexistentes, os testes E2E e o CI definem `IMAGENS_SEM_OTIMIZACAO=1`, que liga `images.unoptimized` no `next.config.ts` (só nos testes; em produção as imagens continuam otimizadas).
 
 ## Critérios de aceitação
 
@@ -79,13 +89,18 @@ Nada novo: o `discover` do servidor falso já responde por gênero e página (fi
      - devolve no máximo 6 de cada origem, sem filmes de `excluir`, sem filmes sem pôster e sem repetidos;
      - o motivo "fora da bolha" é "Fora da sua bolha: {Gênero} bem avaliado";
      - se a consulta "fora da bolha" falha, devolve só os "do seu gosto"; com menos de 3 filmes no total, devolve lista vazia;
+   - se a página sorteada do gosto vem vazia, repete na página 1 com ordem `nota`;
    - o globo, com movimento reduzido simulado: clicar em "Me surpreenda" abre o pop-up com o título, o motivo e o link "Ver detalhes" para `/filme/{id}`; "Sortear outro" abre o pop-up de novo; "Fechar" fecha;
-   - o ângulo de parada deixa o item sorteado de frente (função pura `anguloPara(indice, total, voltas)`).
+   - o ângulo de parada deixa o item sorteado de frente (função pura `anguloPara(indice, total, voltas)`);
+   - a memória de sorteados: grava, lê, descarta entradas com mais de 24 h, guarda no máximo 200 e não quebra sem `localStorage`;
+   - a limpeza dos IDs recebidos por `novoGlobo` (só inteiros positivos, no máximo 200);
+   - no globo: sorteios seguidos não repetem filme; quando todos saíram, ele chama `novoGlobo` e sorteia do lote novo; com relógio simulado, depois de 2 minutos ele chama `novoGlobo` e troca os pôsteres.
 2. **Testes E2E** (`pnpm test:e2e`, TMDB falso) passam:
    - depois do onboarding, o dashboard mostra a seção "Não sabe o que ver?" e o botão "Me surpreenda";
-   - com movimento reduzido (`reducedMotion: "reduce"`), clicar em "Me surpreenda" abre um diálogo com um título e o link "Ver detalhes"; clicar nele leva a `/filme/{id}`;
-   - sem movimento reduzido, o diálogo abre em até 5 s depois do clique;
+   - com movimento reduzido (`reducedMotion: "reduce"`), clicar em "Me surpreenda" ainda mostra "Sorteando…" e, depois do giro, abre um diálogo com um título e o link "Ver detalhes"; clicar nele leva a `/filme/{id}`;
+   - sem movimento reduzido, "Sorteando…" aparece e o diálogo abre entre 1 e 5 s depois do clique;
    - Esc fecha o diálogo;
+   - três sorteios seguidos ("Sortear outro") mostram três filmes diferentes;
    - os testes E2E anteriores continuam passando.
 3. `pnpm lint`, `pnpm typecheck`, `pnpm build` e `pnpm check:secrets` terminam sem erros, e o CI passa na `main`.
 
