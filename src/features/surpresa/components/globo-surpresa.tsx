@@ -238,7 +238,8 @@ export function GloboSurpresa({ filmes: filmesIniciais }: { filmes: FilmeGlobo[]
       <div
         aria-hidden="true"
         className={cn(
-          "relative h-56 w-full transition-opacity duration-300 [perspective:1100px] sm:h-64",
+          // Decorativo: o pôster da frente, ampliado pela perspectiva, não pode tapar o botão.
+          "pointer-events-none relative h-56 w-full transition-opacity duration-300 [perspective:1100px] sm:h-64",
           trocando && "opacity-0",
         )}
       >
@@ -270,7 +271,7 @@ export function GloboSurpresa({ filmes: filmesIniciais }: { filmes: FilmeGlobo[]
 
       <Button
         size="lg"
-        className="h-11 gap-2 px-6 text-base"
+        className="relative z-10 h-11 gap-2 px-6 text-base"
         onClick={sortear}
         disabled={sorteando}
       >
