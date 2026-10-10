@@ -9,7 +9,7 @@
 Projeto da AP1 da disciplina **Desenvolvimento de Software Apoiado por IA** (UFPA, 2026), feito por:
 
 - Alexsandro Costa ([@sandroccosta](https://github.com/sandroccosta))
-- Jonathan Fagundes
+- Jonathan Fagundes ([@jonathanfufu](https://github.com/jonathanfufu))
 
 ## Como funciona
 
